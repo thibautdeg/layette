@@ -43,7 +43,7 @@ test('an unreachable page results in a validation error', function () {
 });
 
 test('a gift can be created with a downloaded webshop photo', function () {
-    Storage::fake('public');
+    Storage::fake(config('filesystems.uploads'));
 
     $this->actingAs(admin());
     GiftList::factory()->create();
@@ -67,11 +67,11 @@ test('a gift can be created with a downloaded webshop photo', function () {
     expect($dbGift->image_path)->not->toBeNull()
         ->and($dbGift->image_path)->toEndWith('.jpg');
 
-    Storage::disk('public')->assertExists($dbGift->image_path);
+    Storage::disk(config('filesystems.uploads'))->assertExists($dbGift->image_path);
 });
 
 test('a non-image download is ignored and the gift is still created', function () {
-    Storage::fake('public');
+    Storage::fake(config('filesystems.uploads'));
 
     $this->actingAs(admin());
     GiftList::factory()->create();

@@ -36,7 +36,7 @@ class GiftContributionController extends Controller
                 'title' => $gift->title,
                 'description' => $gift->description,
                 'price' => $gift->price,
-                'image_url' => $gift->image_path !== null ? Storage::disk('public')->url($gift->image_path) : null,
+                'image_url' => $gift->image_path !== null ? Storage::disk(config('filesystems.uploads'))->url($gift->image_path) : null,
                 'remaining' => $gift->remainingAmount(),
                 'allows_partial_contributions' => $gift->allows_partial_contributions,
                 'allows_purchase' => $gift->allows_purchase && ! $gift->hasActiveContributions(),

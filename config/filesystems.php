@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Uploads Disk
+    |--------------------------------------------------------------------------
+    |
+    | The disk used for user uploads (gift photos, the list photo). Locally
+    | this is the "public" disk; in production it points to an S3-compatible
+    | bucket because the local filesystem on Laravel Cloud is ephemeral.
+    |
+    */
+
+    'uploads' => env('UPLOADS_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

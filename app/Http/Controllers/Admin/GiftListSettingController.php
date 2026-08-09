@@ -24,7 +24,7 @@ class GiftListSettingController extends Controller
                 'baby_name' => $giftList->baby_name,
                 'baby_gender' => $giftList->baby_gender?->value,
                 'intro' => $giftList->intro,
-                'photo_url' => $giftList->photo_path !== null ? Storage::disk('public')->url($giftList->photo_path) : null,
+                'photo_url' => $giftList->photo_path !== null ? Storage::disk(config('filesystems.uploads'))->url($giftList->photo_path) : null,
                 'iban' => $giftList->iban,
                 'account_holder' => $giftList->account_holder,
                 'wero_phone' => $giftList->wero_phone,
@@ -46,10 +46,10 @@ class GiftListSettingController extends Controller
 
         if ($request->hasFile('photo')) {
             if ($giftList->photo_path !== null) {
-                Storage::disk('public')->delete($giftList->photo_path);
+                Storage::disk(config('filesystems.uploads'))->delete($giftList->photo_path);
             }
 
-            $giftList->photo_path = $request->file('photo')->store('list', 'public') ?: null;
+            $giftList->photo_path = $request->file('photo')->store('list', config('filesystems.uploads')) ?: null;
         }
 
         $giftList->save();

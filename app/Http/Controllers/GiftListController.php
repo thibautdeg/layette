@@ -36,7 +36,7 @@ class GiftListController extends Controller
                     'emoji' => $giftList->baby_gender->emoji(),
                 ] : null,
                 'intro' => $giftList->intro,
-                'photo_url' => $giftList->photo_path !== null ? Storage::disk('public')->url($giftList->photo_path) : null,
+                'photo_url' => $giftList->photo_path !== null ? Storage::disk(config('filesystems.uploads'))->url($giftList->photo_path) : null,
                 'expected_at' => $giftList->expected_at?->toDateString(),
                 'days_until_due' => $giftList->daysUntilDue(),
                 'pregnancy_week' => $giftList->pregnancyWeek(),
@@ -60,7 +60,7 @@ class GiftListController extends Controller
             'openGraph' => [
                 'title' => $giftList->title,
                 'description' => $giftList->intro !== null ? Str::limit($giftList->intro, 150) : null,
-                'image' => $giftList->photo_path !== null ? Storage::disk('public')->url($giftList->photo_path) : null,
+                'image' => $giftList->photo_path !== null ? Storage::disk(config('filesystems.uploads'))->url($giftList->photo_path) : null,
             ],
         ]);
     }
@@ -75,7 +75,7 @@ class GiftListController extends Controller
             'title' => $gift->title,
             'description' => $gift->description,
             'price' => $gift->price,
-            'image_url' => $gift->image_path !== null ? Storage::disk('public')->url($gift->image_path) : null,
+            'image_url' => $gift->image_path !== null ? Storage::disk(config('filesystems.uploads'))->url($gift->image_path) : null,
             'shop_url' => $gift->shop_url,
             'status' => $gift->status()->value,
             'status_label' => $gift->status()->label(),

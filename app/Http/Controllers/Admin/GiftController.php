@@ -32,7 +32,7 @@ class GiftController extends Controller
                 'title' => $gift->title,
                 'description' => $gift->description,
                 'price' => $gift->price,
-                'image_url' => $gift->image_path !== null ? Storage::disk('public')->url($gift->image_path) : null,
+                'image_url' => $gift->image_path !== null ? Storage::disk(config('filesystems.uploads'))->url($gift->image_path) : null,
                 'shop_url' => $gift->shop_url,
                 'allows_partial_contributions' => $gift->allows_partial_contributions,
                 'allows_purchase' => $gift->allows_purchase,
@@ -55,7 +55,7 @@ class GiftController extends Controller
         $gift->position = ($giftList->gifts()->max('position') ?? 0) + 1;
 
         if ($request->hasFile('image')) {
-            $gift->image_path = $request->file('image')->store('gifts', 'public') ?: null;
+            $gift->image_path = $request->file('image')->store('gifts', config('filesystems.uploads')) ?: null;
         } elseif ($request->filled('image_url')) {
             $gift->image_path = $this->downloadImage($request->string('image_url')->toString());
         }
@@ -73,16 +73,16 @@ class GiftController extends Controller
 
         if ($request->hasFile('image')) {
             if ($gift->image_path !== null) {
-                Storage::disk('public')->delete($gift->image_path);
+                Storage::disk(config('filesystems.uploads'))->delete($gift->image_path);
             }
 
-            $gift->image_path = $request->file('image')->store('gifts', 'public') ?: null;
+            $gift->image_path = $request->file('image')->store('gifts', config('filesystems.uploads')) ?: null;
         } elseif ($request->filled('image_url')) {
             $downloaded = $this->downloadImage($request->string('image_url')->toString());
 
             if ($downloaded !== null) {
                 if ($gift->image_path !== null) {
-                    Storage::disk('public')->delete($gift->image_path);
+                    Storage::disk(config('filesystems.uploads'))->delete($gift->image_path);
                 }
 
                 $gift->image_path = $downloaded;
@@ -132,7 +132,7 @@ class GiftController extends Controller
 
         $path = 'gifts/'.Str::random(20).'.'.$extensions[$contentType];
 
-        Storage::disk('public')->put($path, $response->body());
+        Storage::disk(config('filesystems.uploads'))->put($path, $response->body());
 
         return $path;
     }
@@ -140,7 +140,7 @@ class GiftController extends Controller
     public function destroy(Gift $gift): RedirectResponse
     {
         if ($gift->image_path !== null) {
-            Storage::disk('public')->delete($gift->image_path);
+            Storage::disk(config('filesystems.uploads'))->delete($gift->image_path);
         }
 
         $gift->delete();

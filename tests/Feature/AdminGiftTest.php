@@ -21,7 +21,7 @@ test('donors cannot reach the admin area', function () {
 });
 
 test('an admin can add a gift with a photo', function () {
-    Storage::fake('public');
+    Storage::fake(config('filesystems.uploads'));
 
     $this->actingAs(admin());
     GiftList::factory()->create();
@@ -43,7 +43,7 @@ test('an admin can add a gift with a photo', function () {
         ->and($dbGift->allows_purchase)->toBeFalse()
         ->and($dbGift->image_path)->not->toBeNull();
 
-    Storage::disk('public')->assertExists($dbGift->image_path);
+    Storage::disk(config('filesystems.uploads'))->assertExists($dbGift->image_path);
 });
 
 test('an admin can update a gift', function () {
