@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\GeneratePaymentQrAction;
 use App\Models\Contribution;
 use App\Models\GiftList;
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ use Inertia\Response;
 
 class ContributionInstructionController extends Controller
 {
-    public function view(Request $request, Contribution $contribution): Response
+    public function view(Request $request, Contribution $contribution, GeneratePaymentQrAction $paymentQr): Response
     {
         abort_unless($this->mayView($request, $contribution), 403);
 
@@ -33,6 +34,7 @@ class ContributionInstructionController extends Controller
                 'iban' => $giftList->iban,
                 'account_holder' => $giftList->account_holder,
                 'wero_phone' => $giftList->wero_phone,
+                'qr_svg' => $contribution->isPurchase() ? null : $paymentQr->handle($giftList, $contribution),
             ],
             'listSlug' => $giftList->slug,
         ]);
