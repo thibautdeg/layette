@@ -6,6 +6,7 @@ use App\Http\Controllers\FreeContributionController;
 use App\Http\Controllers\GiftContributionController;
 use App\Http\Controllers\GiftListController;
 use App\Http\Controllers\NameGuessController;
+use App\Http\Controllers\SocialLoginController;
 use App\Http\Middleware\PreventSearchIndexing;
 use App\Models\GiftList;
 use Illuminate\Http\Request;
@@ -18,6 +19,11 @@ Route::get('/', function () {
 
     return to_route('list.view', ['giftList' => $giftList->slug]);
 })->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('auth/{provider}/redirect', [SocialLoginController::class, 'redirect'])->name('oauth.redirect');
+    Route::get('auth/{provider}/callback', [SocialLoginController::class, 'callback'])->name('oauth.callback');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function (Request $request) {

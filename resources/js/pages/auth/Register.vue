@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
+import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,8 @@ const loginUrl = props.intent
         bijdragen later terugvinden en opvolgen. Je naam en mailadres gebruiken
         we alleen daarvoor.
     </div>
+
+    <SocialLoginButtons class="mb-6" />
 
     <Form
         v-bind="store.form()"

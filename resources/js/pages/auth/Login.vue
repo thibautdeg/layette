@@ -3,6 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasskeyVerify from '@/components/PasskeyVerify.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
+import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -58,6 +59,8 @@ const registerUrl = props.intent
     </div>
 
     <PasskeyVerify />
+
+    <SocialLoginButtons class="mb-6" />
 
     <Form
         v-bind="store.form()"
