@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
-import { AlertCircle, Check, Pencil, X } from '@lucide/vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { AlertCircle, Check, Download, Pencil, X } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import ContributionCancellationController from '@/actions/App/Http/Controllers/Admin/ContributionCancellationController';
 import ContributionConfirmationController from '@/actions/App/Http/Controllers/Admin/ContributionConfirmationController';
 import ContributionController from '@/actions/App/Http/Controllers/Admin/ContributionController';
+import ContributionExportController from '@/actions/App/Http/Controllers/Admin/ContributionExportController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Badge } from '@/components/ui/badge';
@@ -20,11 +21,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { centsToEuroInput, euroInputToCents, formatEuro } from '@/lib/money';
+import { edit as settingsEdit } from '@/routes/admin/settings';
 
 interface TransactionInfo {
     amount: number;
     booked_at: string;
     counterparty_name: string | null;
+}
+
+interface ContributionEventInfo {
+    id: number;
+    label: string;
+    by: string;
+    at: string | null;
 }
 
 interface ContributionInfo {
@@ -44,11 +53,30 @@ interface ContributionInfo {
     confirmed_at: string | null;
     gift_title: string;
     transaction: TransactionInfo | null;
+    events: ContributionEventInfo[];
+}
+
+interface WeekInfo {
+    label: string;
+    total: number;
+    count: number;
 }
 
 const props = defineProps<{
     contributions: ContributionInfo[];
+    stats: {
+        funding_percentage: number;
+        contribution_count: number;
+        top_gift: string | null;
+    };
+    weekly: WeekInfo[];
+    paymentDetailsMissing: boolean;
+    nameGuesses: { id: number; name: string; by: string; at: string | null }[];
 }>();
+
+const weeklyMax = computed(() =>
+    Math.max(...props.weekly.map((week) => week.total), 1),
+);
 
 const filter = ref<'all' | 'pending' | 'confirmed' | 'cancelled'>('all');
 
@@ -155,12 +183,38 @@ function cancelContribution(contribution: ContributionInfo) {
     <Head title="Bijdragen" />
 
     <div class="flex flex-col gap-6 p-4">
-        <Heading
-            title="Bijdragen"
-            description="Wie gaf wat, en wat staat er nog open"
-        />
+        <div
+            v-if="paymentDetailsMissing"
+            class="flex flex-wrap items-center gap-2 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-sm"
+        >
+            <AlertCircle class="size-4 shrink-0 text-amber-600" />
+            <span>
+                Je betaalgegevens zijn nog niet ingevuld — schenkers zien dan
+                enkel hun referentie, zonder rekeningnummer om naar over te
+                schrijven.
+            </span>
+            <Link
+                :href="settingsEdit()"
+                class="font-medium underline underline-offset-4"
+            >
+                Vul ze in bij Instellingen
+            </Link>
+        </div>
 
-        <div class="grid grid-cols-2 gap-3 sm:max-w-md">
+        <div class="flex items-start justify-between gap-2">
+            <Heading
+                title="Bijdragen"
+                description="Wie gaf wat, en wat staat er nog open"
+            />
+            <Button variant="outline" size="sm" as-child>
+                <a :href="ContributionExportController.index.url()" download>
+                    <Download class="size-4" />
+                    Exporteer (CSV)
+                </a>
+            </Button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <Card>
                 <CardContent class="p-4">
                     <p class="text-sm text-muted-foreground">Ontvangen</p>
@@ -177,7 +231,93 @@ function cancelContribution(contribution: ContributionInfo) {
                     </p>
                 </CardContent>
             </Card>
+            <Card>
+                <CardContent class="p-4">
+                    <p class="text-sm text-muted-foreground">
+                        Lijst gefinancierd
+                    </p>
+                    <p class="text-xl font-bold">
+                        {{ stats.funding_percentage }}%
+                    </p>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardContent class="p-4">
+                    <p class="text-sm text-muted-foreground">Bijdragen</p>
+                    <p class="text-xl font-bold">
+                        {{ stats.contribution_count }}
+                    </p>
+                </CardContent>
+            </Card>
+            <Card class="col-span-2 lg:col-span-1">
+                <CardContent class="p-4">
+                    <p class="text-sm text-muted-foreground">
+                        Populairste cadeau
+                    </p>
+                    <p
+                        class="truncate text-base font-bold"
+                        :title="stats.top_gift ?? undefined"
+                    >
+                        {{ stats.top_gift ?? '—' }}
+                    </p>
+                </CardContent>
+            </Card>
         </div>
+
+        <Card>
+            <CardContent class="p-4">
+                <p class="mb-3 text-sm text-muted-foreground">
+                    Toegezegd per week
+                </p>
+                <div class="flex h-28 items-end gap-2">
+                    <div
+                        v-for="week in weekly"
+                        :key="week.label"
+                        class="flex flex-1 flex-col items-center gap-1"
+                    >
+                        <span
+                            v-if="week.total > 0"
+                            class="text-xs text-muted-foreground"
+                        >
+                            {{ formatEuro(week.total) }}
+                        </span>
+                        <div
+                            class="w-full max-w-10 rounded-t-md bg-primary/80"
+                            :style="{
+                                height: `${Math.max((week.total / weeklyMax) * 72, week.total > 0 ? 6 : 2)}px`,
+                            }"
+                            :title="`${week.count} bijdragen`"
+                        ></div>
+                        <span class="text-xs text-muted-foreground">
+                            {{ week.label }}
+                        </span>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+
+        <Card v-if="nameGuesses.length > 0">
+            <CardContent class="p-4">
+                <p class="mb-3 text-sm text-muted-foreground">
+                    🔮 Naamgokjes ({{ nameGuesses.length }})
+                </p>
+                <ul class="flex flex-col gap-1 text-sm">
+                    <li
+                        v-for="guess in nameGuesses"
+                        :key="guess.id"
+                        class="flex flex-wrap items-baseline gap-x-2"
+                    >
+                        <span class="font-semibold">{{ guess.name }}</span>
+                        <span class="text-muted-foreground">
+                            — {{ guess.by
+                            }}<template v-if="guess.at">
+                                ({{ guess.at }})</template
+                            >
+                        </span>
+                    </li>
+                </ul>
+            </CardContent>
+        </Card>
 
         <div class="flex gap-2">
             <Button
@@ -319,6 +459,24 @@ function cancelContribution(contribution: ContributionInfo) {
                             Annuleren
                         </Button>
                     </div>
+
+                    <details
+                        v-if="contribution.events.length > 0"
+                        class="text-sm text-muted-foreground"
+                    >
+                        <summary class="cursor-pointer select-none">
+                            Geschiedenis ({{ contribution.events.length }})
+                        </summary>
+                        <ul class="mt-1 flex flex-col gap-0.5 pl-4">
+                            <li
+                                v-for="event in contribution.events"
+                                :key="event.id"
+                            >
+                                {{ event.at }} — {{ event.label }} door
+                                {{ event.by }}
+                            </li>
+                        </ul>
+                    </details>
                 </CardContent>
             </Card>
         </div>

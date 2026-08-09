@@ -31,6 +31,11 @@ class StoreGiftContributionRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'together_with' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 
@@ -53,6 +58,7 @@ class StoreGiftContributionRequest extends FormRequest
             type: $this->enum('type', ContributionType::class),
             amount: $this->filled('amount') ? $this->integer('amount') : null,
             message: $this->filled('message') ? $this->string('message')->trim()->toString() : null,
+            togetherWith: $this->filled('together_with') ? $this->string('together_with')->trim()->toString() : null,
         );
     }
 }

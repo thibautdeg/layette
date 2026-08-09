@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\DTO\ContributionData;
+use App\Enums\ContributionEventAction;
 use App\Enums\ContributionType;
 use App\Models\Contribution;
 use App\Models\Gift;
@@ -22,6 +23,7 @@ class CreateContributionAction
 
             $contribution = new Contribution([
                 'name' => $user->name,
+                'together_with' => $data->togetherWith,
                 'amount' => $data->type === ContributionType::Purchase ? null : $data->amount,
                 'message' => $data->message,
             ]);
@@ -32,6 +34,8 @@ class CreateContributionAction
             $contribution->user()->associate($user);
 
             $contribution->save();
+
+            $contribution->logEvent(ContributionEventAction::Created, $user);
 
             return $contribution;
         });
@@ -92,6 +96,14 @@ class CreateContributionAction
         if (! $gift->allows_partial_contributions && $data->amount !== $gift->price) {
             throw ValidationException::withMessages([
                 'amount' => 'Voor dit cadeau ligt het bedrag vast.',
+            ]);
+        }
+
+        if ($data->amount > $gift->remainingAmount()) {
+            $remaining = number_format($gift->remainingAmount() / 100, 2, ',', '.');
+
+            throw ValidationException::withMessages([
+                'amount' => "Er is nog maar € {$remaining} nodig voor dit cadeau.",
             ]);
         }
     }

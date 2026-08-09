@@ -49,6 +49,13 @@ class ContributionFactory extends Factory
         ]);
     }
 
+    public function free(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'gift_id' => null,
+        ]);
+    }
+
     public function purchase(): static
     {
         return $this->state(fn (array $attributes): array => [

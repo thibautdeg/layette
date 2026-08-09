@@ -18,6 +18,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatEuro } from '@/lib/money';
 import { logout } from '@/routes';
@@ -29,6 +30,7 @@ interface ContributionInfo {
     type_label: string;
     amount: number | null;
     message: string | null;
+    together_with: string | null;
     status: string;
     status_label: string;
     is_editable: boolean;
@@ -53,11 +55,13 @@ const editing = ref<ContributionInfo | null>(null);
 
 const editForm = useForm({
     message: '',
+    together_with: '',
 });
 
 function openEdit(contribution: ContributionInfo) {
     editing.value = contribution;
     editForm.message = contribution.message ?? '';
+    editForm.together_with = contribution.together_with ?? '';
     editForm.clearErrors();
 }
 
@@ -69,6 +73,8 @@ function submitEdit() {
     editForm
         .transform((data) => ({
             message: data.message === '' ? null : data.message,
+            together_with:
+                data.together_with === '' ? null : data.together_with,
         }))
         .patch(
             AccountContributionController.update.url({
@@ -160,6 +166,9 @@ function cancelContribution(contribution: ContributionInfo) {
                     class="flex flex-wrap gap-x-6 gap-y-1 text-muted-foreground"
                 >
                     <span>{{ contribution.type_label }}</span>
+                    <span v-if="contribution.together_with"
+                        >samen met {{ contribution.together_with }}</span
+                    >
                     <span
                         v-if="contribution.amount !== null"
                         class="font-medium text-foreground"
@@ -253,6 +262,19 @@ function cancelContribution(contribution: ContributionInfo) {
                                 class="flex flex-col gap-4"
                                 @submit.prevent="submitEdit"
                             >
+                                <div class="grid gap-2">
+                                    <Label for="edit-together-with"
+                                        >Ik geef samen met…</Label
+                                    >
+                                    <Input
+                                        id="edit-together-with"
+                                        v-model="editForm.together_with"
+                                        placeholder="Bijvoorbeeld: Marcel"
+                                    />
+                                    <InputError
+                                        :message="editForm.errors.together_with"
+                                    />
+                                </div>
                                 <div class="grid gap-2">
                                     <Label for="edit-message"
                                         >Persoonlijk woordje</Label

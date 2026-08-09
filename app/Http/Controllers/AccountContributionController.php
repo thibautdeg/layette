@@ -31,13 +31,14 @@ class AccountContributionController extends Controller
                 'type_label' => $contribution->type->label(),
                 'amount' => $contribution->amount,
                 'message' => $contribution->message,
+                'together_with' => $contribution->together_with,
                 'status' => $contribution->status->value,
                 'status_label' => $contribution->status->donorLabel(),
                 'is_editable' => $contribution->isPending(),
                 'created_at' => $contribution->created_at?->toDateString(),
                 'gift' => [
-                    'title' => $contribution->gift->title,
-                    'is_full' => $contribution->gift->isFull(),
+                    'title' => $contribution->giftTitle(),
+                    'is_full' => $contribution->gift?->isFull() ?? false,
                 ],
             ])->values(),
             'payment' => [
@@ -51,14 +52,14 @@ class AccountContributionController extends Controller
 
     public function update(UpdateAccountContributionRequest $request, Contribution $contribution): RedirectResponse
     {
-        $contribution->update($request->safe()->only(['message']));
+        $contribution->update($request->safe()->only(['message', 'together_with']));
 
         return back()->with('status', 'contribution-updated');
     }
 
     public function destroy(DestroyAccountContributionRequest $request, Contribution $contribution, CancelContributionAction $cancelContribution): RedirectResponse
     {
-        $cancelContribution->handle($contribution);
+        $cancelContribution->handle($contribution, $request->user());
 
         return back()->with('status', 'contribution-cancelled');
     }

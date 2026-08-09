@@ -8,9 +8,11 @@ use App\Http\Controllers\Admin\BankTransactionMatchController;
 use App\Http\Controllers\Admin\ContributionCancellationController;
 use App\Http\Controllers\Admin\ContributionConfirmationController;
 use App\Http\Controllers\Admin\ContributionController;
+use App\Http\Controllers\Admin\ContributionExportController;
 use App\Http\Controllers\Admin\GiftController;
 use App\Http\Controllers\Admin\GiftListSettingController;
 use App\Http\Controllers\Admin\GiftOrderController;
+use App\Http\Controllers\Admin\GiftPreviewController;
 use App\Http\Controllers\Admin\GiftVisibilityController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +21,7 @@ Route::middleware(['auth', 'verified', 'role:'.Role::Admin->value])->prefix('beh
 
     Route::get('cadeaus', [GiftController::class, 'index'])->name('gifts.index');
     Route::post('cadeaus', [GiftController::class, 'store'])->name('gifts.store');
+    Route::post('cadeaus/voorvertoning', [GiftPreviewController::class, 'store'])->name('gifts.preview');
     Route::patch('cadeaus/volgorde', [GiftOrderController::class, 'update'])->name('gifts.order.update');
     Route::post('cadeaus/{gift}', [GiftController::class, 'update'])->name('gifts.update');
     Route::delete('cadeaus/{gift}', [GiftController::class, 'destroy'])->name('gifts.destroy');
@@ -28,6 +31,7 @@ Route::middleware(['auth', 'verified', 'role:'.Role::Admin->value])->prefix('beh
     Route::post('instellingen', [GiftListSettingController::class, 'update'])->name('settings.update');
 
     Route::get('bijdragen', [ContributionController::class, 'index'])->name('contributions.index');
+    Route::get('bijdragen/export', [ContributionExportController::class, 'index'])->name('contributions.export');
     Route::patch('bijdragen/{contribution}', [ContributionController::class, 'update'])->name('contributions.update');
     Route::post('bijdragen/{contribution}/bevestigen', [ContributionConfirmationController::class, 'store'])->name('contributions.confirm');
     Route::post('bijdragen/{contribution}/annuleren', [ContributionCancellationController::class, 'store'])->name('contributions.cancel');

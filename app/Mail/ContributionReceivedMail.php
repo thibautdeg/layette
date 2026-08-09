@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Contribution;
+use App\Models\GiftList;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -33,7 +34,7 @@ class ContributionReceivedMail extends Mailable
             with: [
                 'contribution' => $this->contribution,
                 'gift' => $this->contribution->gift,
-                'giftList' => $this->contribution->gift->giftList,
+                'giftList' => $this->contribution->gift->giftList ?? GiftList::current(),
                 'instructionsUrl' => URL::signedRoute('contribution.instructions', ['contribution' => $this->contribution->reference]),
                 'accountUrl' => route('account.contributions'),
             ],

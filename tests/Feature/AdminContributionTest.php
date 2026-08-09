@@ -2,6 +2,7 @@
 
 use App\Models\BankTransaction;
 use App\Models\Contribution;
+use App\Models\GiftList;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('the overview lists all contributions with their status', function () {
@@ -14,6 +15,9 @@ test('the overview lists all contributions with their status', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/Contributions')
             ->has('contributions', 2)
+            ->has('stats.funding_percentage')
+            ->has('stats.contribution_count')
+            ->has('weekly', 8)
         );
 });
 
@@ -66,4 +70,24 @@ test('an admin can adjust the amount of a contribution', function () {
     ])->assertRedirect();
 
     expect(Contribution::find($contribution->id)->amount)->toBe(4500);
+});
+
+test('admins are warned when the payment details are still missing', function () {
+    $this->actingAs(admin());
+    GiftList::factory()->create(['iban' => null, 'wero_phone' => null]);
+
+    $this->get(route('admin.contributions.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('paymentDetailsMissing', true)
+        );
+});
+
+test('the warning disappears once payment details are filled in', function () {
+    $this->actingAs(admin());
+    GiftList::factory()->create(['iban' => 'BE68539007547034']);
+
+    $this->get(route('admin.contributions.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('paymentDetailsMissing', false)
+        );
 });

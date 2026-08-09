@@ -26,6 +26,11 @@ class UpdateAccountContributionRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'together_with' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 

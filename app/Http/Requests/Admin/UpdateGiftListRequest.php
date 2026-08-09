@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\BabyGender;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateGiftListRequest extends FormRequest
 {
@@ -16,6 +18,15 @@ class UpdateGiftListRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+            ],
+            'baby_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'baby_gender' => [
+                'nullable',
+                Rule::enum(BabyGender::class),
             ],
             'intro' => [
                 'nullable',

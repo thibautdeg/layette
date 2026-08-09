@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contribution;
+use App\Models\GiftList;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,7 +14,7 @@ class ContributionInstructionController extends Controller
     {
         abort_unless($this->mayView($request, $contribution), 403);
 
-        $giftList = $contribution->gift->giftList;
+        $giftList = $contribution->gift->giftList ?? GiftList::current();
 
         return Inertia::render('list/Instructions', [
             'contribution' => [
@@ -25,7 +26,8 @@ class ContributionInstructionController extends Controller
                 'status_label' => $contribution->status->donorLabel(),
             ],
             'gift' => [
-                'title' => $contribution->gift->title,
+                'title' => $contribution->gift->title ?? null,
+                'is_free' => $contribution->isFree(),
             ],
             'payment' => [
                 'iban' => $giftList->iban,

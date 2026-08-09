@@ -15,6 +15,8 @@ interface GiftListInfo {
     slug: string;
     url: string;
     title: string;
+    baby_name: string | null;
+    baby_gender: string | null;
     intro: string | null;
     photo_url: string | null;
     iban: string | null;
@@ -38,6 +40,8 @@ async function copyUrl() {
 
 const form = useForm({
     title: props.giftList.title,
+    baby_name: props.giftList.baby_name ?? '',
+    baby_gender: props.giftList.baby_gender ?? '',
     intro: props.giftList.intro ?? '',
     iban: props.giftList.iban ?? '',
     account_holder: props.giftList.account_holder ?? '',
@@ -55,6 +59,8 @@ function onPhotoChange(event: Event) {
 function submit() {
     form.transform((data) => ({
         title: data.title,
+        baby_name: data.baby_name === '' ? null : data.baby_name,
+        baby_gender: data.baby_gender === '' ? null : data.baby_gender,
         intro: data.intro === '' ? null : data.intro,
         iban: data.iban === '' ? null : data.iban.replace(/\s/g, ''),
         account_holder: data.account_holder === '' ? null : data.account_holder,
@@ -105,6 +111,39 @@ function submit() {
                         <Label for="list-title">Titel</Label>
                         <Input id="list-title" v-model="form.title" required />
                         <InputError :message="form.errors.title" />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="list-baby-name"
+                            >Naam van het kindje (optioneel)</Label
+                        >
+                        <Input
+                            id="list-baby-name"
+                            v-model="form.baby_name"
+                            placeholder="Bijvoorbeeld: Nora"
+                        />
+                        <p class="text-sm text-muted-foreground">
+                            Verschijnt bovenaan het profiel op de lijst. Laat
+                            leeg als jullie de naam nog geheim houden.
+                        </p>
+                        <InputError :message="form.errors.baby_name" />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="list-baby-gender">Jongen of meisje?</Label>
+                        <select
+                            id="list-baby-gender"
+                            v-model="form.baby_gender"
+                            class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                        >
+                            <option value="">Nog niet tonen</option>
+                            <option value="girl">🎀 Meisje</option>
+                            <option value="boy">💙 Jongen</option>
+                            <option value="surprise">
+                                🎁 Verrassing — we houden het geheim
+                            </option>
+                        </select>
+                        <InputError :message="form.errors.baby_gender" />
                     </div>
 
                     <div class="grid gap-2">

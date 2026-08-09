@@ -23,11 +23,9 @@ class ContributionCreatedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $gift = $this->contribution->gift;
-
         $summary = $this->contribution->isPurchase()
-            ? "{$this->contribution->name} koopt \"{$gift->title}\" zelf."
-            : sprintf('%s draagt € %s bij aan "%s".', $this->contribution->name, number_format($this->contribution->amount / 100, 2, ',', '.'), $gift->title);
+            ? "{$this->contribution->name} koopt \"{$this->contribution->giftTitle()}\" zelf."
+            : sprintf('%s draagt € %s bij aan "%s".', $this->contribution->displayName(), number_format($this->contribution->amount / 100, 2, ',', '.'), $this->contribution->giftTitle());
 
         $mail = (new MailMessage)
             ->subject('Nieuwe bijdrage op de geboortelijst')

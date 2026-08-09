@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\UpdateGiftRequest;
 use App\Models\Gift;
 use App\Models\GiftList;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,12 +50,14 @@ class GiftController extends Controller
     {
         $giftList = GiftList::current();
 
-        $gift = new Gift($request->safe()->except('image'));
+        $gift = new Gift($request->safe()->except(['image', 'image_url']));
         $gift->giftList()->associate($giftList);
         $gift->position = ($giftList->gifts()->max('position') ?? 0) + 1;
 
         if ($request->hasFile('image')) {
             $gift->image_path = $request->file('image')->store('gifts', 'public') ?: null;
+        } elseif ($request->filled('image_url')) {
+            $gift->image_path = $this->downloadImage($request->string('image_url')->toString());
         }
 
         $gift->save();
@@ -65,7 +69,7 @@ class GiftController extends Controller
 
     public function update(UpdateGiftRequest $request, Gift $gift): RedirectResponse
     {
-        $gift->fill($request->safe()->except('image'));
+        $gift->fill($request->safe()->except(['image', 'image_url']));
 
         if ($request->hasFile('image')) {
             if ($gift->image_path !== null) {
@@ -73,6 +77,16 @@ class GiftController extends Controller
             }
 
             $gift->image_path = $request->file('image')->store('gifts', 'public') ?: null;
+        } elseif ($request->filled('image_url')) {
+            $downloaded = $this->downloadImage($request->string('image_url')->toString());
+
+            if ($downloaded !== null) {
+                if ($gift->image_path !== null) {
+                    Storage::disk('public')->delete($gift->image_path);
+                }
+
+                $gift->image_path = $downloaded;
+            }
         }
 
         $gift->save();
@@ -80,6 +94,47 @@ class GiftController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Cadeau aangepast.']);
 
         return back();
+    }
+
+    /**
+     * Download a product photo from a webshop and store it on the public disk.
+     */
+    protected function downloadImage(string $url): ?string
+    {
+        try {
+            $response = Http::timeout(8)
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; Geboortelijst/1.0)'])
+                ->get($url);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+        ];
+
+        $contentType = Str::before($response->header('Content-Type'), ';');
+
+        if (! isset($extensions[$contentType])) {
+            return null;
+        }
+
+        if (mb_strlen($response->body(), '8bit') > 5 * 1024 * 1024) {
+            return null;
+        }
+
+        $path = 'gifts/'.Str::random(20).'.'.$extensions[$contentType];
+
+        Storage::disk('public')->put($path, $response->body());
+
+        return $path;
     }
 
     public function destroy(Gift $gift): RedirectResponse

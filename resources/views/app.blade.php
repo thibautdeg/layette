@@ -3,6 +3,18 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noindex, nofollow">
+
+        @isset($openGraph)
+            <meta property="og:type" content="website">
+            <meta property="og:title" content="{{ $openGraph['title'] }}">
+            @isset($openGraph['description'])
+                <meta property="og:description" content="{{ $openGraph['description'] }}">
+            @endisset
+            @isset($openGraph['image'])
+                <meta property="og:image" content="{{ $openGraph['image'] }}">
+            @endisset
+        @endisset
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -22,11 +34,11 @@
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: hsl(38 100% 98%);
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: hsl(26 20% 10%);
             }
         </style>
 

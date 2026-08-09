@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BabyGender;
 use App\Models\Gift;
 use App\Models\GiftList;
 use Illuminate\Http\UploadedFile;
@@ -104,6 +105,8 @@ test('an admin can update the list settings and close the list', function () {
 
     $this->post(route('admin.settings.update'), [
         'title' => 'Lijstje voor onze spruit',
+        'baby_name' => 'Nora',
+        'baby_gender' => 'girl',
         'intro' => 'Welkom!',
         'iban' => 'BE68539007547034',
         'account_holder' => 'Thibaut & partner',
@@ -115,5 +118,7 @@ test('an admin can update the list settings and close the list', function () {
     $dbGiftList = GiftList::find($giftList->id);
 
     expect($dbGiftList->title)->toBe('Lijstje voor onze spruit')
+        ->and($dbGiftList->baby_name)->toBe('Nora')
+        ->and($dbGiftList->baby_gender)->toBe(BabyGender::Girl)
         ->and($dbGiftList->isClosed())->toBeTrue();
 });

@@ -60,6 +60,24 @@ test('a registered donor can announce a contribution to a gift', function () {
         ->and($dbContribution->reference)->toStartWith('BL-');
 });
 
+test('a donor can give together with someone', function () {
+    $user = donor();
+    $giftList = GiftList::factory()->create();
+    $gift = Gift::factory()->for($giftList)->create(['price' => 10000]);
+
+    $this->actingAs($user)
+        ->post(route('list.contribute.store', ['giftList' => $giftList->slug, 'gift' => $gift]), [
+            'type' => 'contribution',
+            'amount' => 2500,
+            'together_with' => 'Marcel',
+        ])->assertRedirect();
+
+    $dbContribution = Contribution::query()->sole();
+
+    expect($dbContribution->together_with)->toBe('Marcel')
+        ->and($dbContribution->displayName())->toBe("{$user->name} & Marcel");
+});
+
 test('a registered donor can reserve a gift to buy it themselves', function () {
     $user = donor();
     $giftList = GiftList::factory()->create();
@@ -127,14 +145,27 @@ test('pending contributions block a fully funded gift for new donors', function 
         ])->assertSessionHasErrors('gift');
 });
 
-test('giving more than the asking price is allowed', function () {
+test('giving more than what remains is refused', function () {
     $giftList = GiftList::factory()->create();
     $gift = Gift::factory()->for($giftList)->create(['price' => 10000]);
+    Contribution::factory()->for($gift)->create(['amount' => 4000]);
 
     $this->actingAs(donor())
         ->post(route('list.contribute.store', ['giftList' => $giftList->slug, 'gift' => $gift]), [
             'type' => 'contribution',
-            'amount' => 15000,
+            'amount' => 7000,
+        ])->assertSessionHasErrors('amount');
+});
+
+test('giving exactly what remains is allowed', function () {
+    $giftList = GiftList::factory()->create();
+    $gift = Gift::factory()->for($giftList)->create(['price' => 10000]);
+    Contribution::factory()->for($gift)->create(['amount' => 4000]);
+
+    $this->actingAs(donor())
+        ->post(route('list.contribute.store', ['giftList' => $giftList->slug, 'gift' => $gift]), [
+            'type' => 'contribution',
+            'amount' => 6000,
         ])->assertSessionDoesntHaveErrors()->assertRedirect();
 });
 

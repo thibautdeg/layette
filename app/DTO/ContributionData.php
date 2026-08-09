@@ -10,5 +10,6 @@ class ContributionData
         public ContributionType $type,
         public ?int $amount,
         public ?string $message,
+        public ?string $togetherWith,
     ) {}
 }

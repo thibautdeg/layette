@@ -46,6 +46,11 @@ class UpdateGiftRequest extends FormRequest
                 'image',
                 'max:5120',
             ],
+            'image_url' => [
+                'nullable',
+                'url:http,https',
+                'max:2048',
+            ],
         ];
     }
 }

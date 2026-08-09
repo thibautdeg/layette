@@ -19,7 +19,7 @@ interface ContributionInfo {
 
 const props = defineProps<{
     contribution: ContributionInfo;
-    gift: { title: string };
+    gift: { title: string | null; is_free: boolean };
     payment: {
         iban: string | null;
         account_holder: string | null;
@@ -41,6 +41,23 @@ async function copy(field: string, value: string) {
 }
 
 const isPurchase = props.contribution.type === 'purchase';
+
+function euroValue(cents: number): string {
+    return (cents / 100).toFixed(2).replace('.', ',');
+}
+
+function copyEverything() {
+    const lines = [
+        `Rekeningnummer: ${props.payment.iban}`,
+        props.payment.account_holder
+            ? `Naam: ${props.payment.account_holder}`
+            : null,
+        `Bedrag: ${euroValue(props.contribution.amount ?? 0)} euro`,
+        `Mededeling: ${props.contribution.reference}`,
+    ].filter(Boolean);
+
+    copy('everything', lines.join('\n'));
+}
 </script>
 
 <template>
@@ -57,7 +74,8 @@ const isPurchase = props.contribution.type === 'purchase';
     <template v-if="isPurchase">
         <Card>
             <CardContent class="p-6 text-center">
-                <h1 class="text-2xl font-bold">
+                <div class="mb-2 text-4xl" aria-hidden="true">🎀</div>
+                <h1 class="text-2xl font-extrabold">
                     Bedankt, {{ contribution.name }}!
                 </h1>
                 <p class="mt-2 text-muted-foreground">
@@ -71,10 +89,16 @@ const isPurchase = props.contribution.type === 'purchase';
 
     <template v-else>
         <header class="mb-6 text-center">
-            <h1 class="text-2xl font-bold">
+            <div class="mb-2 text-4xl" aria-hidden="true">💛</div>
+            <h1 class="text-2xl font-extrabold">
                 Bedankt, {{ contribution.name }}!
             </h1>
-            <p class="mt-2 text-muted-foreground">
+            <p v-if="gift.is_free" class="mt-2 text-muted-foreground">
+                Je geeft
+                <strong>{{ formatEuro(contribution.amount ?? 0) }}</strong> als
+                vrije bijdrage. Wat lief!
+            </p>
+            <p v-else class="mt-2 text-muted-foreground">
                 Je draagt
                 <strong>{{ formatEuro(contribution.amount ?? 0) }}</strong> bij
                 aan <strong>{{ gift.title }}</strong
@@ -85,7 +109,7 @@ const isPurchase = props.contribution.type === 'purchase';
             }}</Badge>
         </header>
 
-        <Card class="mb-4 border-primary">
+        <Card class="mb-4 border-primary/40 bg-primary/5">
             <CardHeader class="pb-2">
                 <CardTitle class="text-base">Jouw referentie</CardTitle>
             </CardHeader>
@@ -232,6 +256,34 @@ const isPurchase = props.contribution.type === 'purchase';
                             <Copy v-else class="size-4" />
                         </Button>
                     </div>
+
+                    <Button
+                        variant="secondary"
+                        class="mt-2 w-full rounded-full font-bold"
+                        @click="copyEverything"
+                    >
+                        <Check
+                            v-if="copiedField === 'everything'"
+                            class="size-4 text-green-600"
+                        />
+                        <Copy v-else class="size-4" />
+                        {{
+                            copiedField === 'everything'
+                                ? 'Alles gekopieerd!'
+                                : 'Kopieer alles in één keer'
+                        }}
+                    </Button>
+                </CardContent>
+            </Card>
+
+            <Card v-if="!payment.iban && !payment.wero_phone">
+                <CardContent class="p-4 text-sm text-muted-foreground">
+                    We bezorgen je onze rekeninggegevens persoonlijk. Hou zeker
+                    je referentie
+                    <span class="font-mono font-medium text-foreground">{{
+                        contribution.reference
+                    }}</span>
+                    bij de hand voor de mededeling van je overschrijving.
                 </CardContent>
             </Card>
         </div>

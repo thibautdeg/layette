@@ -21,7 +21,7 @@ class BankTransactionMatchController extends Controller
 
         $bankTransaction->ignored_at = null;
 
-        $confirmContribution->handle($contribution, $bankTransaction);
+        $confirmContribution->handle($contribution, $bankTransaction, $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "Gekoppeld aan {$contribution->reference}."]);
 

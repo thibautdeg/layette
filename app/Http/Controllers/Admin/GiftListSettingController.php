@@ -21,6 +21,8 @@ class GiftListSettingController extends Controller
                 'slug' => $giftList->slug,
                 'url' => route('list.view', ['giftList' => $giftList->slug]),
                 'title' => $giftList->title,
+                'baby_name' => $giftList->baby_name,
+                'baby_gender' => $giftList->baby_gender?->value,
                 'intro' => $giftList->intro,
                 'photo_url' => $giftList->photo_path !== null ? Storage::disk('public')->url($giftList->photo_path) : null,
                 'iban' => $giftList->iban,

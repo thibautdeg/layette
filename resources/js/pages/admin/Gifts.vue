@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm, useHttp } from '@inertiajs/vue3';
 import {
     ArrowDown,
     ArrowUp,
@@ -7,11 +7,13 @@ import {
     EyeOff,
     Pencil,
     Plus,
+    Sparkles,
     Trash2,
 } from '@lucide/vue';
 import { ref } from 'vue';
 import GiftController from '@/actions/App/Http/Controllers/Admin/GiftController';
 import GiftOrderController from '@/actions/App/Http/Controllers/Admin/GiftOrderController';
+import GiftPreviewController from '@/actions/App/Http/Controllers/Admin/GiftPreviewController';
 import GiftVisibilityController from '@/actions/App/Http/Controllers/Admin/GiftVisibilityController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -62,12 +64,41 @@ const form = useForm({
     allows_partial_contributions: true,
     allows_purchase: true,
     image: null as File | null,
+    image_url: '',
 });
+
+const preview = useHttp({
+    url: '',
+});
+
+function fetchPreview() {
+    preview.post(GiftPreviewController.store.url(), {
+        onSuccess: (response: unknown) => {
+            const data = response as {
+                title: string | null;
+                description: string | null;
+                image_url: string | null;
+                price: number | null;
+            };
+
+            form.title = data.title ?? form.title;
+            form.description = data.description ?? form.description;
+            form.image_url = data.image_url ?? '';
+            form.shop_url = preview.url;
+
+            if (data.price !== null) {
+                form.price = centsToEuroInput(data.price);
+            }
+        },
+    });
+}
 
 function openCreate() {
     editingGift.value = null;
     form.reset();
     form.clearErrors();
+    preview.url = '';
+    preview.clearErrors();
     dialogOpen.value = true;
 }
 
@@ -80,6 +111,9 @@ function openEdit(gift: GiftInfo) {
     form.allows_partial_contributions = gift.allows_partial_contributions;
     form.allows_purchase = gift.allows_purchase;
     form.image = null;
+    form.image_url = '';
+    preview.url = '';
+    preview.clearErrors();
     form.clearErrors();
     dialogOpen.value = true;
 }
@@ -92,7 +126,11 @@ function submit() {
         shop_url: data.shop_url === '' ? null : data.shop_url,
         allows_partial_contributions: data.allows_partial_contributions,
         allows_purchase: data.allows_purchase,
-        ...(data.image ? { image: data.image } : {}),
+        ...(data.image
+            ? { image: data.image }
+            : data.image_url !== ''
+              ? { image_url: data.image_url }
+              : {}),
     }));
 
     const options = {
@@ -280,6 +318,41 @@ function onImageChange(event: Event) {
             </DialogHeader>
 
             <form class="flex flex-col gap-4" @submit.prevent="submit">
+                <div class="grid gap-2 rounded-md bg-muted p-3">
+                    <Label for="gift-import-url">
+                        Invullen via een webshoplink
+                    </Label>
+                    <div class="flex gap-2">
+                        <Input
+                            id="gift-import-url"
+                            v-model="preview.url"
+                            type="url"
+                            placeholder="https://www.dreambaby.be/…"
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            :disabled="preview.processing || preview.url === ''"
+                            @click="fetchPreview"
+                        >
+                            <Sparkles class="size-4" />
+                            {{ preview.processing ? 'Bezig…' : 'Ophalen' }}
+                        </Button>
+                    </div>
+                    <InputError :message="preview.errors.url" />
+                    <div
+                        v-if="form.image_url"
+                        class="flex items-center gap-2 text-sm text-muted-foreground"
+                    >
+                        <img
+                            :src="form.image_url"
+                            alt=""
+                            class="h-12 w-12 rounded-md object-cover"
+                        />
+                        Foto gevonden — die slaan we mee op.
+                    </div>
+                </div>
+
                 <div class="grid gap-2">
                     <Label for="gift-title">Titel</Label>
                     <Input id="gift-title" v-model="form.title" required />

@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('type')->index();
             $table->string('status')->default('pending')->index();
             $table->string('name');
+            $table->string('together_with')->nullable();
             $table->unsignedInteger('amount')->nullable();
             $table->text('message')->nullable();
-            $table->foreignId('gift_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('gift_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();

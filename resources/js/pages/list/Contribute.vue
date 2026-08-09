@@ -39,23 +39,37 @@ const user = computed(() => page.props.auth.user);
 
 const type = ref<'contribution' | 'purchase'>('contribution');
 
+const quickAmounts = props.gift.allows_partial_contributions
+    ? [1000, 2500, 5000, 10000].filter(
+          (amount) => amount < props.gift.remaining,
+      )
+    : [];
+
 const suggestedAmount = props.gift.allows_partial_contributions
-    ? props.gift.remaining
+    ? (quickAmounts[0] ?? props.gift.remaining)
     : props.gift.price;
 
 const form = useForm({
     amount: centsToEuroInput(suggestedAmount),
     message: '',
+    together_with: '',
 });
 
 const isPurchase = computed(() => type.value === 'purchase');
 
 const giftError = computed(() => (form.errors as Record<string, string>).gift);
 
+const selectedAmountCents = computed(() => euroInputToCents(form.amount));
+
+function selectAmount(cents: number) {
+    form.amount = centsToEuroInput(cents);
+}
+
 function submit() {
     form.transform((data) => ({
         type: type.value,
         message: data.message === '' ? null : data.message,
+        together_with: data.together_with === '' ? null : data.together_with,
         ...(isPurchase.value ? {} : { amount: euroInputToCents(data.amount) }),
     })).post(
         GiftContributionController.store.url({
@@ -148,21 +162,63 @@ function submit() {
 
                 <div v-if="!isPurchase" class="grid gap-2">
                     <Label for="amount">Bedrag (euro)</Label>
+
+                    <div
+                        v-if="quickAmounts.length > 0"
+                        class="flex flex-wrap gap-2"
+                    >
+                        <button
+                            v-for="quickAmount in quickAmounts"
+                            :key="quickAmount"
+                            type="button"
+                            class="rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors"
+                            :class="
+                                selectedAmountCents === quickAmount
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'hover:bg-accent'
+                            "
+                            @click="selectAmount(quickAmount)"
+                        >
+                            {{ formatEuro(quickAmount) }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors"
+                            :class="
+                                selectedAmountCents === gift.remaining
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'hover:bg-accent'
+                            "
+                            @click="selectAmount(gift.remaining)"
+                        >
+                            De rest ({{ formatEuro(gift.remaining) }})
+                        </button>
+                    </div>
+
                     <Input
                         id="amount"
                         v-model="form.amount"
                         type="number"
                         step="0.01"
                         min="1"
+                        :max="gift.remaining / 100"
                         inputmode="decimal"
                         :disabled="!gift.allows_partial_contributions"
                         required
+                        placeholder="Of kies zelf een bedrag"
                     />
                     <p
                         v-if="!gift.allows_partial_contributions"
                         class="text-sm text-muted-foreground"
                     >
                         Voor dit cadeau ligt het bedrag vast.
+                    </p>
+                    <p
+                        v-else-if="gift.remaining < gift.price"
+                        class="text-sm text-muted-foreground"
+                    >
+                        Er is nog {{ formatEuro(gift.remaining) }} nodig — meer
+                        dan dat kan je niet geven.
                     </p>
                     <InputError :message="form.errors.amount" />
                 </div>
@@ -182,6 +238,22 @@ function submit() {
                 </p>
 
                 <div class="grid gap-2">
+                    <Label for="together-with"
+                        >Ik geef samen met… (optioneel)</Label
+                    >
+                    <Input
+                        id="together-with"
+                        v-model="form.together_with"
+                        placeholder="Bijvoorbeeld: Marcel, of oma en opa"
+                    />
+                    <p class="text-sm text-muted-foreground">
+                        Zo staan jullie er allebei bij, ook al doet één iemand
+                        de {{ isPurchase ? 'reservatie' : 'overschrijving' }}.
+                    </p>
+                    <InputError :message="form.errors.together_with" />
+                </div>
+
+                <div class="grid gap-2">
                     <Label for="message"
                         >Persoonlijk woordje aan ons (optioneel)</Label
                     >
@@ -199,7 +271,7 @@ function submit() {
                 <Button
                     type="submit"
                     :disabled="form.processing"
-                    class="w-full"
+                    class="w-full rounded-full font-bold"
                 >
                     {{
                         isPurchase

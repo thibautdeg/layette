@@ -31,7 +31,32 @@ test('the public list is not indexable by search engines', function () {
 
     $this->get(route('list.view', ['giftList' => $giftList->slug]))
         ->assertSuccessful()
-        ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+        ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+        ->assertSee('noindex, nofollow', false);
+});
+
+test('the baby profile shows the name, gender, and pregnancy countdown', function () {
+    $giftList = GiftList::factory()->create([
+        'baby_name' => 'Nora',
+        'baby_gender' => 'girl',
+        'expected_at' => now()->addDays(56)->toDateString(),
+    ]);
+
+    $this->get(route('list.view', ['giftList' => $giftList->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('giftList.baby_name', 'Nora')
+            ->where('giftList.baby_gender.label', 'Meisje')
+            ->where('giftList.days_until_due', 56)
+            ->where('giftList.pregnancy_week', 32)
+        );
+});
+
+test('the public list carries open graph tags for link previews', function () {
+    $giftList = GiftList::factory()->create(['title' => 'Lijstje van de spruit']);
+
+    $this->get(route('list.view', ['giftList' => $giftList->slug]))
+        ->assertSee('og:title', false)
+        ->assertSee('Lijstje van de spruit', false);
 });
 
 test('reserved and full gifts move to the bottom of the list', function () {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BabyGender;
 use Carbon\CarbonImmutable;
 use Database\Factories\GiftListFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $slug
  * @property string $title
+ * @property string|null $baby_name
+ * @property BabyGender|null $baby_gender
  * @property string|null $intro
  * @property string|null $photo_path
  * @property string|null $iban
@@ -23,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['title', 'intro', 'iban', 'account_holder', 'wero_phone', 'expected_at'])]
+#[Fillable(['title', 'baby_name', 'baby_gender', 'intro', 'iban', 'account_holder', 'wero_phone', 'expected_at'])]
 class GiftList extends Model
 {
     /** @use HasFactory<GiftListFactory> */
@@ -32,9 +35,38 @@ class GiftList extends Model
     protected function casts(): array
     {
         return [
+            'baby_gender' => BabyGender::class,
             'expected_at' => 'date',
             'closed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Days until the due date, or null when no due date is set or it has passed.
+     */
+    public function daysUntilDue(): ?int
+    {
+        if ($this->expected_at === null) {
+            return null;
+        }
+
+        $days = (int) today()->diffInDays($this->expected_at, false);
+
+        return $days >= 0 ? $days : null;
+    }
+
+    /**
+     * The current pregnancy week, assuming a 40-week term counted back from the due date.
+     */
+    public function pregnancyWeek(): ?int
+    {
+        $days = $this->daysUntilDue();
+
+        if ($days === null) {
+            return null;
+        }
+
+        return max(1, min(40, 40 - intdiv($days, 7)));
     }
 
     /**

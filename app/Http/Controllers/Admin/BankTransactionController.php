@@ -37,7 +37,7 @@ class BankTransactionController extends Controller
             'recent' => $recent->map(fn (BankTransaction $transaction): array => $this->transactionPayload($transaction))->values(),
             'pendingContributions' => $pendingContributions->map(fn (Contribution $contribution): array => [
                 'id' => $contribution->id,
-                'label' => "{$contribution->reference} — {$contribution->name} — € ".number_format($contribution->amount / 100, 2, ',', '.')." ({$contribution->gift->title})",
+                'label' => "{$contribution->reference} — {$contribution->name} — € ".number_format($contribution->amount / 100, 2, ',', '.')." ({$contribution->giftTitle()})",
             ])->values(),
         ]);
     }

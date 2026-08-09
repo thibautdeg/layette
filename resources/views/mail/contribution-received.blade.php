@@ -3,6 +3,8 @@
 
 @if ($contribution->isPurchase())
 Je hebt aangegeven dat je **{{ $gift->title }}** zelf koopt. Het cadeau staat nu als gereserveerd op de lijst, zodat niemand anders het nog kiest. Je hoeft verder niets te doen via deze site.
+@elseif ($contribution->isFree())
+Je hebt aangekondigd om **€ {{ number_format($contribution->amount / 100, 2, ',', '.') }}** te geven als vrije bijdrage. Wat lief!
 @else
 Je hebt aangekondigd om **€ {{ number_format($contribution->amount / 100, 2, ',', '.') }}** bij te dragen aan **{{ $gift->title }}**.
 
