@@ -24,6 +24,7 @@ const props = defineProps<{
         iban: string | null;
         account_holder: string | null;
         wero_phone: string | null;
+        qr_svg: string | null;
     };
     listSlug: string;
 }>();
@@ -182,6 +183,20 @@ function copyEverything() {
                     >
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2 text-sm">
+                    <div
+                        v-if="payment.qr_svg"
+                        class="mb-2 flex flex-col items-center gap-2"
+                    >
+                        <div
+                            v-html="payment.qr_svg"
+                            class="overflow-hidden rounded-2xl border bg-white [&>svg]:block [&>svg]:h-44 [&>svg]:w-44"
+                        />
+                        <p class="text-center text-xs text-muted-foreground">
+                            Scan de QR-code met je bankapp: bedrag,
+                            rekeningnummer en mededeling staan meteen juist. Of
+                            vul alles zelf in:
+                        </p>
+                    </div>
                     <div class="flex items-center justify-between gap-2">
                         <div class="min-w-0">
                             <p class="text-muted-foreground">Rekeningnummer</p>
