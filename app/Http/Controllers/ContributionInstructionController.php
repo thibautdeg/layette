@@ -33,7 +33,6 @@ class ContributionInstructionController extends Controller
             'payment' => [
                 'iban' => $giftList->iban,
                 'account_holder' => $giftList->account_holder,
-                'wero_phone' => $giftList->wero_phone,
                 'qr_svg' => $contribution->isPurchase() ? null : $paymentQr->handle($giftList, $contribution),
             ],
             'listSlug' => $giftList->slug,
