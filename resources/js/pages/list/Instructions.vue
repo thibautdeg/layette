@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Check, Copy, ImageDown } from '@lucide/vue';
+import { ArrowLeft, Check, Copy } from '@lucide/vue';
 import { ref } from 'vue';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
+import PaymentQr from '@/components/PaymentQr.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,41 +58,6 @@ function copyEverything() {
     ].filter(Boolean);
 
     copy('everything', lines.join('\n'));
-}
-
-const qrSaved = ref(false);
-
-function saveQr() {
-    const svgUrl = URL.createObjectURL(
-        new Blob([props.payment.qr_svg ?? ''], { type: 'image/svg+xml' }),
-    );
-
-    const image = new Image();
-    image.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 768;
-        const context = canvas.getContext('2d')!;
-        context.fillStyle = '#ffffff';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(svgUrl);
-
-        canvas.toBlob((blob) => {
-            if (!blob) {
-                return;
-            }
-
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `overschrijving-${props.contribution.reference}.png`;
-            link.click();
-            URL.revokeObjectURL(link.href);
-
-            qrSaved.value = true;
-            setTimeout(() => (qrSaved.value = false), 3000);
-        });
-    };
-    image.src = svgUrl;
 }
 </script>
 
@@ -155,45 +121,12 @@ function saveQr() {
                     >
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2 text-sm">
-                    <div
+                    <PaymentQr
                         v-if="payment.qr_svg"
-                        class="mb-2 flex flex-col items-center gap-3"
-                    >
-                        <div
-                            v-html="payment.qr_svg"
-                            class="overflow-hidden rounded-2xl border bg-white [&>svg]:block [&>svg]:h-44 [&>svg]:w-44"
-                        />
-                        <p class="hidden text-center sm:block">
-                            <strong>Scan deze QR-code met je bankapp</strong>
-                            (open je bankapp en kies scannen of QR-code). De
-                            overschrijving staat dan volledig klaar: het bedrag,
-                            ons rekeningnummer en de mededeling zijn al
-                            ingevuld. Je hoeft enkel nog te bevestigen.
-                        </p>
-                        <p class="text-center sm:hidden">
-                            <strong>Op je telefoon?</strong> Sla de QR-code op
-                            als afbeelding en kies die foto in je bankapp bij
-                            het scannen. De overschrijving staat dan volledig
-                            klaar: het bedrag, ons rekeningnummer en de
-                            mededeling zijn al ingevuld.
-                        </p>
-                        <Button
-                            variant="secondary"
-                            class="rounded-full font-bold sm:hidden"
-                            @click="saveQr"
-                        >
-                            <Check
-                                v-if="qrSaved"
-                                class="size-4 text-green-600"
-                            />
-                            <ImageDown v-else class="size-4" />
-                            {{ qrSaved ? 'Opgeslagen!' : 'QR-code opslaan' }}
-                        </Button>
-                        <p class="text-center text-xs text-muted-foreground">
-                            Lukt het niet? Vul de overschrijving dan zelf in met
-                            de gegevens hieronder.
-                        </p>
-                    </div>
+                        :qr-svg="payment.qr_svg"
+                        :reference="contribution.reference"
+                        class="mb-2"
+                    />
                     <div class="flex items-center justify-between gap-2">
                         <div class="min-w-0">
                             <p class="text-muted-foreground">Rekeningnummer</p>

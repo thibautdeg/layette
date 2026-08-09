@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CancelContributionAction;
+use App\Actions\GeneratePaymentQrAction;
 use App\Http\Requests\DestroyAccountContributionRequest;
 use App\Http\Requests\UpdateAccountContributionRequest;
 use App\Models\Contribution;
@@ -14,7 +15,7 @@ use Inertia\Response;
 
 class AccountContributionController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, GeneratePaymentQrAction $paymentQr): Response
     {
         $giftList = GiftList::current();
 
@@ -40,11 +41,13 @@ class AccountContributionController extends Controller
                     'title' => $contribution->giftTitle(),
                     'is_full' => $contribution->gift?->isFull() ?? false,
                 ],
+                'qr_svg' => $contribution->isPending() && ! $contribution->isPurchase()
+                    ? $paymentQr->handle($giftList, $contribution)
+                    : null,
             ])->values(),
             'payment' => [
                 'iban' => $giftList->iban,
                 'account_holder' => $giftList->account_holder,
-                'wero_phone' => $giftList->wero_phone,
             ],
             'listSlug' => $giftList->slug,
         ]);

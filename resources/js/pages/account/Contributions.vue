@@ -6,6 +6,7 @@ import AccountContributionController from '@/actions/App/Http/Controllers/Accoun
 import ContributionInstructionController from '@/actions/App/Http/Controllers/ContributionInstructionController';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
 import InputError from '@/components/InputError.vue';
+import PaymentQr from '@/components/PaymentQr.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +37,7 @@ interface ContributionInfo {
     is_editable: boolean;
     created_at: string | null;
     gift: { title: string; is_full: boolean };
+    qr_svg: string | null;
 }
 
 defineProps<{
@@ -43,7 +45,6 @@ defineProps<{
     payment: {
         iban: string | null;
         account_holder: string | null;
-        wero_phone: string | null;
     };
     listSlug: string;
 }>();
@@ -204,16 +205,23 @@ function cancelContribution(contribution: ContributionInfo) {
                     class="rounded-md border p-3"
                 >
                     <p class="mb-1 font-medium">Nog over te schrijven</p>
+
+                    <PaymentQr
+                        v-if="contribution.qr_svg"
+                        :qr-svg="contribution.qr_svg"
+                        :reference="contribution.reference"
+                        class="my-3"
+                    >
+                        <template #fallback>
+                            Liever zelf overtypen? Alle gegevens staan bij de
+                            betaalinstructies hieronder.
+                        </template>
+                    </PaymentQr>
+
                     <p class="text-muted-foreground">
                         Referentie:
                         <span class="font-mono font-medium text-foreground">{{
                             contribution.reference
-                        }}</span>
-                    </p>
-                    <p v-if="payment.wero_phone" class="text-muted-foreground">
-                        Wero:
-                        <span class="text-foreground">{{
-                            payment.wero_phone
                         }}</span>
                     </p>
                     <p v-if="payment.iban" class="text-muted-foreground">
