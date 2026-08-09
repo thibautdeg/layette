@@ -56,23 +56,25 @@ function submit() {
 
     <Link
         :href="GiftListController.view({ giftList: giftList.slug })"
-        class="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
     >
         <ArrowLeft class="size-4" />
         Terug naar de lijst
     </Link>
 
-    <Card>
+    <Card class="rounded-3xl border-2 border-white/90 shadow-md">
         <CardContent class="p-4 sm:p-6">
             <div class="mb-6 flex items-center gap-4">
                 <div
-                    class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-3xl"
+                    class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-3xl shadow-sm"
                     aria-hidden="true"
                 >
                     💝
                 </div>
                 <div>
-                    <h1 class="text-xl font-semibold">Vrije bijdrage</h1>
+                    <h1 class="font-display text-2xl font-bold">
+                        Vrije bijdrage
+                    </h1>
                     <p class="text-sm text-muted-foreground">
                         Niet aan één cadeau gebonden — gewoon iets voor de
                         spaarpot van de kleine.
@@ -99,11 +101,11 @@ function submit() {
                             v-for="quickAmount in quickAmounts"
                             :key="quickAmount"
                             type="button"
-                            class="rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors"
+                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
                             :class="
                                 selectedAmountCents === quickAmount
                                     ? 'border-primary bg-primary/10 text-primary'
-                                    : 'hover:bg-accent'
+                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
                             "
                             @click="selectAmount(quickAmount)"
                         >

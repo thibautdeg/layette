@@ -115,7 +115,7 @@ function cancelContribution(contribution: ContributionInfo) {
     <div class="mb-6 flex items-center justify-between">
         <Link
             :href="GiftListController.view({ giftList: listSlug })"
-            class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            class="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
         >
             <ArrowLeft class="size-4" />
             Naar de lijst
@@ -129,8 +129,8 @@ function cancelContribution(contribution: ContributionInfo) {
         </Link>
     </div>
 
-    <h1 class="mb-1 text-2xl font-bold">
-        Dag {{ user?.name?.split(' ')[0] }}!
+    <h1 class="mb-1 font-display text-3xl font-bold">
+        Dag {{ user?.name?.split(' ')[0] }}! 👋
     </h1>
     <p class="mb-6 text-sm text-muted-foreground">
         Dit zijn de bijdragen van je account ({{ user?.email }}).
@@ -144,7 +144,11 @@ function cancelContribution(contribution: ContributionInfo) {
     </p>
 
     <div class="flex flex-col gap-4">
-        <Card v-for="contribution in contributions" :key="contribution.id">
+        <Card
+            v-for="contribution in contributions"
+            :key="contribution.id"
+            class="rounded-3xl border-2 border-white/90 shadow-sm"
+        >
             <CardHeader class="pb-2">
                 <div class="flex items-start justify-between gap-2">
                     <CardTitle class="text-base">{{

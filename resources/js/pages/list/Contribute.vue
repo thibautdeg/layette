@@ -85,23 +85,25 @@ function submit() {
 
     <Link
         :href="GiftListController.view({ giftList: giftList.slug })"
-        class="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
     >
         <ArrowLeft class="size-4" />
         Terug naar de lijst
     </Link>
 
-    <Card>
+    <Card class="rounded-3xl border-2 border-white/90 shadow-md">
         <CardContent class="p-4 sm:p-6">
             <div class="mb-6 flex gap-4">
                 <img
                     v-if="gift.image_url"
                     :src="gift.image_url"
                     alt=""
-                    class="h-20 w-20 shrink-0 rounded-md object-cover"
+                    class="h-20 w-20 shrink-0 rounded-2xl object-cover ring-2 ring-white"
                 />
                 <div>
-                    <h1 class="text-xl font-semibold">{{ gift.title }}</h1>
+                    <h1 class="font-display text-2xl font-bold">
+                        {{ gift.title }}
+                    </h1>
                     <p class="text-sm text-muted-foreground">
                         Richtprijs: {{ formatEuro(gift.price) }}
                     </p>
@@ -128,27 +130,27 @@ function submit() {
                 <div v-if="gift.allows_purchase" class="grid grid-cols-2 gap-2">
                     <button
                         type="button"
-                        class="rounded-md border p-3 text-sm font-medium transition-colors"
+                        class="rounded-2xl border-2 p-3 text-sm font-bold transition-colors"
                         :class="
                             !isPurchase
-                                ? 'border-primary bg-primary/5'
-                                : 'hover:bg-accent'
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'hover:bg-accent/50'
                         "
                         @click="type = 'contribution'"
                     >
-                        Ik draag bij
+                        🤝 Ik draag bij
                     </button>
                     <button
                         type="button"
-                        class="rounded-md border p-3 text-sm font-medium transition-colors"
+                        class="rounded-2xl border-2 p-3 text-sm font-bold transition-colors"
                         :class="
                             isPurchase
-                                ? 'border-primary bg-primary/5'
-                                : 'hover:bg-accent'
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'hover:bg-accent/50'
                         "
                         @click="type = 'purchase'"
                     >
-                        Ik koop dit zelf
+                        🛍️ Ik koop dit zelf
                     </button>
                 </div>
 
@@ -171,11 +173,11 @@ function submit() {
                             v-for="quickAmount in quickAmounts"
                             :key="quickAmount"
                             type="button"
-                            class="rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors"
+                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
                             :class="
                                 selectedAmountCents === quickAmount
                                     ? 'border-primary bg-primary/10 text-primary'
-                                    : 'hover:bg-accent'
+                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
                             "
                             @click="selectAmount(quickAmount)"
                         >
@@ -183,11 +185,11 @@ function submit() {
                         </button>
                         <button
                             type="button"
-                            class="rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors"
+                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
                             :class="
                                 selectedAmountCents === gift.remaining
                                     ? 'border-primary bg-primary/10 text-primary'
-                                    : 'hover:bg-accent'
+                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
                             "
                             @click="selectAmount(gift.remaining)"
                         >

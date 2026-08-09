@@ -65,17 +65,17 @@ function copyEverything() {
 
     <Link
         :href="GiftListController.view({ giftList: listSlug })"
-        class="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
     >
         <ArrowLeft class="size-4" />
         Terug naar de lijst
     </Link>
 
     <template v-if="isPurchase">
-        <Card>
+        <Card class="rounded-3xl border-2 border-white/90 shadow-md">
             <CardContent class="p-6 text-center">
                 <div class="mb-2 text-4xl" aria-hidden="true">🎀</div>
-                <h1 class="text-2xl font-extrabold">
+                <h1 class="font-display text-3xl font-bold">
                     Bedankt, {{ contribution.name }}!
                 </h1>
                 <p class="mt-2 text-muted-foreground">
@@ -90,7 +90,7 @@ function copyEverything() {
     <template v-else>
         <header class="mb-6 text-center">
             <div class="mb-2 text-4xl" aria-hidden="true">💛</div>
-            <h1 class="text-2xl font-extrabold">
+            <h1 class="font-display text-3xl font-bold">
                 Bedankt, {{ contribution.name }}!
             </h1>
             <p v-if="gift.is_free" class="mt-2 text-muted-foreground">
@@ -109,9 +109,13 @@ function copyEverything() {
             }}</Badge>
         </header>
 
-        <Card class="mb-4 border-primary/40 bg-primary/5">
+        <Card
+            class="mb-4 rounded-3xl border-2 border-dashed border-primary/40 bg-primary/5"
+        >
             <CardHeader class="pb-2">
-                <CardTitle class="text-base">Jouw referentie</CardTitle>
+                <CardTitle class="font-display text-lg"
+                    >Jouw referentie</CardTitle
+                >
             </CardHeader>
             <CardContent>
                 <div
@@ -140,9 +144,14 @@ function copyEverything() {
         </Card>
 
         <div class="flex flex-col gap-4">
-            <Card v-if="payment.wero_phone">
+            <Card
+                v-if="payment.wero_phone"
+                class="rounded-3xl border-2 border-white/90 shadow-sm"
+            >
                 <CardHeader class="pb-2">
-                    <CardTitle class="text-base">1. Via Wero</CardTitle>
+                    <CardTitle class="font-display text-lg"
+                        >1. Via Wero</CardTitle
+                    >
                 </CardHeader>
                 <CardContent class="text-sm">
                     <p>
@@ -162,9 +171,12 @@ function copyEverything() {
                 </CardContent>
             </Card>
 
-            <Card v-if="payment.iban">
+            <Card
+                v-if="payment.iban"
+                class="rounded-3xl border-2 border-white/90 shadow-sm"
+            >
                 <CardHeader class="pb-2">
-                    <CardTitle class="text-base"
+                    <CardTitle class="font-display text-lg"
                         >{{ payment.wero_phone ? '2.' : '1.' }} Via
                         overschrijving</CardTitle
                     >
@@ -276,7 +288,10 @@ function copyEverything() {
                 </CardContent>
             </Card>
 
-            <Card v-if="!payment.iban && !payment.wero_phone">
+            <Card
+                v-if="!payment.iban && !payment.wero_phone"
+                class="rounded-3xl border-2 border-white/90 shadow-sm"
+            >
                 <CardContent class="p-4 text-sm text-muted-foreground">
                     We bezorgen je onze rekeninggegevens persoonlijk. Hou zeker
                     je referentie

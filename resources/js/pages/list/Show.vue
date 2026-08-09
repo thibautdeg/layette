@@ -9,12 +9,10 @@ import {
     CircleCheck,
     ExternalLink,
     HandCoins,
-    Heart,
     ListChecks,
     Milk,
     Share2,
     ShoppingBag,
-    WandSparkles,
 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -211,6 +209,17 @@ const giftSectionIntro = computed(() => {
     return 'Kies een cadeautje of leg samen bij.';
 });
 
+const giftTileClasses = [
+    'bg-chart-1/25 text-[hsl(340_60%_45%)]',
+    'bg-chart-2/25 text-[hsl(172_55%_28%)]',
+    'bg-chart-3/25 text-[hsl(203_70%_34%)]',
+    'bg-chart-4/30 text-[hsl(40_80%_32%)]',
+];
+
+function giftTileClass(index: number): string {
+    return giftTileClasses[index % giftTileClasses.length];
+}
+
 const visibleGifts = computed(() => {
     let gifts = props.gifts;
 
@@ -237,34 +246,34 @@ const visibleGifts = computed(() => {
         >
             <aside class="flex flex-col gap-4 lg:sticky lg:top-6">
                 <Card
-                    class="overflow-hidden border-border/70 bg-card/95 py-0 shadow-lg shadow-primary/5 backdrop-blur"
+                    class="overflow-hidden rounded-3xl border-2 border-white/90 bg-card/95 py-0 shadow-xl shadow-primary/10 backdrop-blur"
                 >
                     <CardContent class="p-0">
                         <div
-                            class="bg-linear-to-br from-primary/12 via-secondary/45 to-accent/45 px-5 pt-5 pb-4 text-center dark:from-primary/15 dark:via-secondary/20 dark:to-accent/20"
+                            class="relative bg-chart-1/15 px-5 pt-6 pb-4 text-center"
                         >
                             <img
                                 v-if="giftList.photo_url"
                                 :src="giftList.photo_url"
                                 alt=""
-                                class="mx-auto mb-3 size-24 rounded-full object-cover shadow-lg ring-4 ring-background/80"
+                                class="mx-auto mb-3 size-24 rounded-full object-cover shadow-lg ring-4 ring-white"
                             />
                             <div
                                 v-else
-                                class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-background/80 text-primary shadow-sm ring-1 ring-border/70"
+                                class="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-white text-primary shadow-md ring-2 ring-chart-1/40"
                                 aria-hidden="true"
                             >
                                 <Milk class="size-8" />
                             </div>
 
                             <p
-                                class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1 text-xs font-bold text-muted-foreground ring-1 ring-border/70"
+                                class="mb-2 inline-flex -rotate-1 items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-extrabold text-primary shadow-sm"
                             >
                                 <Baby class="size-3.5" />
                                 Mini onderweg
                             </p>
                             <h1
-                                class="text-2xl leading-tight font-extrabold tracking-tight"
+                                class="font-display text-3xl leading-tight font-bold tracking-tight"
                             >
                                 {{ giftList.baby_name ?? giftList.title }}
                             </h1>
@@ -280,14 +289,14 @@ const visibleGifts = computed(() => {
                             >
                                 <span
                                     v-if="giftList.baby_gender"
-                                    class="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-sm font-semibold text-accent-foreground"
+                                    class="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground shadow-sm"
                                 >
                                     {{ giftList.baby_gender.emoji }}
                                     {{ giftList.baby_gender.label }}
                                 </span>
                                 <span
                                     v-if="formattedExpectedAt()"
-                                    class="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-semibold text-secondary-foreground"
+                                    class="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-bold text-secondary-foreground shadow-sm"
                                 >
                                     <CalendarHeart class="size-4" />
                                     Verwacht rond {{ formattedExpectedAt() }}
@@ -298,7 +307,7 @@ const visibleGifts = computed(() => {
                         <div class="space-y-4 p-4">
                             <div
                                 v-if="countdown"
-                                class="rounded-xl border bg-background/55 p-3"
+                                class="rounded-2xl border-2 border-chart-4/40 bg-chart-4/10 p-3"
                             >
                                 <div
                                     class="flex items-center justify-between gap-3"
@@ -316,14 +325,14 @@ const visibleGifts = computed(() => {
                                 </div>
                                 <div
                                     v-if="giftList.pregnancy_week !== null"
-                                    class="h-2.5 w-full overflow-hidden rounded-full bg-muted"
+                                    class="h-3 w-full overflow-hidden rounded-full bg-white/80"
                                     role="progressbar"
                                     :aria-valuenow="giftList.pregnancy_week"
                                     aria-valuemin="0"
                                     aria-valuemax="40"
                                 >
                                     <div
-                                        class="h-full rounded-full bg-linear-to-r from-primary via-chart-1 to-chart-2 transition-all"
+                                        class="h-full rounded-full bg-primary transition-all"
                                         :style="{
                                             width: `${Math.round((giftList.pregnancy_week / 40) * 100)}%`,
                                         }"
@@ -340,14 +349,14 @@ const visibleGifts = computed(() => {
 
                             <div
                                 v-if="giftList.is_closed"
-                                class="rounded-xl border bg-muted/70 p-4 text-sm text-muted-foreground"
+                                class="rounded-2xl border-2 border-dashed border-border bg-muted/70 p-4 text-sm text-muted-foreground"
                             >
                                 De lijst is afgesloten. Dankjewel voor alle
                                 liefde.
                             </div>
                             <div
                                 v-else-if="!isLoggedIn"
-                                class="rounded-xl border bg-muted/70 p-3 text-sm leading-5 text-muted-foreground"
+                                class="rounded-2xl border-2 border-dashed border-border bg-muted/70 p-3 text-sm leading-5 text-muted-foreground"
                             >
                                 Kies iets liefs, aanmelden doen we pas daarna.
                             </div>
@@ -375,18 +384,20 @@ const visibleGifts = computed(() => {
 
                 <Card
                     v-if="!giftList.is_closed"
-                    class="border-secondary/80 bg-secondary/65 py-0 shadow-sm"
+                    class="rounded-3xl border-2 border-dashed border-secondary-foreground/25 bg-secondary/70 py-0 shadow-sm"
                 >
                     <CardContent class="p-4">
                         <div class="flex items-center gap-3">
                             <div
-                                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-background/75 text-secondary-foreground ring-1 ring-border/70"
+                                class="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm"
                                 aria-hidden="true"
                             >
-                                <Heart class="size-5" />
+                                🐷
                             </div>
                             <div class="min-w-0">
-                                <h2 class="text-base leading-tight font-bold">
+                                <h2
+                                    class="font-display text-lg leading-tight font-bold"
+                                >
                                     Spaarpotje
                                 </h2>
                                 <p
@@ -400,7 +411,7 @@ const visibleGifts = computed(() => {
                             as-child
                             variant="secondary"
                             size="sm"
-                            class="mt-3 w-full rounded-full bg-background/85 font-bold hover:bg-background"
+                            class="mt-3 w-full rounded-full bg-white/90 font-bold shadow-sm hover:bg-white"
                         >
                             <Link
                                 :href="
@@ -416,17 +427,21 @@ const visibleGifts = computed(() => {
                     </CardContent>
                 </Card>
 
-                <Card class="bg-card/95 py-0 shadow-sm">
+                <Card
+                    class="rounded-3xl border-2 border-white/90 bg-accent/45 py-0 shadow-sm"
+                >
                     <CardContent class="flex flex-col gap-3 p-4">
                         <div class="flex items-start gap-3">
                             <div
-                                class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground"
+                                class="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm"
                                 aria-hidden="true"
                             >
-                                <WandSparkles class="size-5" />
+                                🔮
                             </div>
                             <div>
-                                <h2 class="text-base leading-tight font-bold">
+                                <h2
+                                    class="font-display text-lg leading-tight font-bold"
+                                >
                                     Raad de naam
                                 </h2>
                                 <p
@@ -449,7 +464,7 @@ const visibleGifts = computed(() => {
                                 :class="
                                     myNameGuess === guess.name
                                         ? 'border-primary bg-primary/10 text-primary'
-                                        : 'bg-background/70 hover:bg-accent'
+                                        : 'border-white bg-white/80 shadow-sm hover:bg-white'
                                 "
                                 :disabled="!isLoggedIn || guessForm.processing"
                                 @click="submitGuess(guess.name)"
@@ -514,20 +529,20 @@ const visibleGifts = computed(() => {
 
             <section id="cadeaus" class="min-w-0 scroll-mt-6">
                 <div
-                    class="mb-3 rounded-xl border bg-card/90 p-4 shadow-sm backdrop-blur"
+                    class="mb-4 rounded-3xl border-2 border-white/90 bg-card/90 p-4 shadow-sm backdrop-blur"
                 >
                     <div
                         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                     >
                         <div class="min-w-0">
                             <p
-                                class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary"
+                                class="inline-flex -rotate-1 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary"
                             >
                                 <Blocks class="size-3.5" />
                                 Cadeautjes
                             </p>
                             <h2
-                                class="mt-2 text-2xl font-extrabold tracking-tight"
+                                class="mt-2 font-display text-3xl font-bold tracking-tight underline decoration-chart-4 decoration-wavy decoration-3 underline-offset-6"
                             >
                                 Voor de kleine spruit
                             </h2>
@@ -581,9 +596,9 @@ const visibleGifts = computed(() => {
 
                 <div class="flex flex-col gap-3">
                     <Card
-                        v-for="gift in visibleGifts"
+                        v-for="(gift, index) in visibleGifts"
                         :key="gift.id"
-                        class="group overflow-hidden border-border/70 bg-card/95 py-0 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/5"
+                        class="group overflow-hidden rounded-3xl border-2 border-white/90 bg-card/95 py-0 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10"
                         :class="{
                             'opacity-75 saturate-75':
                                 !gift.is_available && !giftList.is_closed,
@@ -597,11 +612,12 @@ const visibleGifts = computed(() => {
                                     v-if="gift.image_url"
                                     :src="gift.image_url"
                                     alt=""
-                                    class="size-20 rounded-xl object-cover"
+                                    class="size-20 rounded-2xl object-cover ring-2 ring-white transition-transform group-hover:-rotate-1"
                                 />
                                 <div
                                     v-else
-                                    class="flex size-20 items-center justify-center rounded-xl bg-muted text-primary"
+                                    class="flex size-20 items-center justify-center rounded-2xl transition-transform group-hover:-rotate-1"
+                                    :class="giftTileClass(index)"
                                     aria-hidden="true"
                                 >
                                     <Blocks class="size-8" />
@@ -645,7 +661,7 @@ const visibleGifts = computed(() => {
 
                                     <div class="shrink-0">
                                         <p
-                                            class="inline-flex rounded-full bg-muted px-3 py-1 text-sm font-extrabold"
+                                            class="inline-flex -rotate-1 rounded-full bg-chart-4/30 px-3 py-1 text-sm font-extrabold shadow-sm"
                                         >
                                             {{ formatEuro(gift.price) }}
                                         </p>
@@ -678,7 +694,7 @@ const visibleGifts = computed(() => {
                                         <span v-else>Dankjewel!</span>
                                     </div>
                                     <div
-                                        class="h-2 w-full overflow-hidden rounded-full bg-muted"
+                                        class="h-2.5 w-full overflow-hidden rounded-full bg-muted"
                                         role="progressbar"
                                         :aria-valuenow="
                                             progressPercentage(gift)
@@ -687,7 +703,7 @@ const visibleGifts = computed(() => {
                                         aria-valuemax="100"
                                     >
                                         <div
-                                            class="h-full rounded-full bg-linear-to-r from-primary via-chart-1 to-chart-2 transition-all"
+                                            class="h-full rounded-full bg-primary transition-all"
                                             :style="{
                                                 width: `${progressPercentage(gift)}%`,
                                             }"

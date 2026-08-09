@@ -18,6 +18,11 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
+    --font-display:
+        'Baloo 2', Nunito, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
@@ -173,5 +178,59 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+/*
+  Speels snoepjes-pastel thema voor de publieke geboortelijst-pagina's.
+  Deze variabelen staan op de layout-wrapper zelf en winnen daardoor
+  altijd van de .dark waarden op <html> — de publieke kant is bewust
+  light-only, de backoffice behoudt zijn eigen (dark mode) thema.
+*/
+.public-theme {
+    --background: hsl(46 100% 96%);
+    --foreground: hsl(259 25% 30%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(259 25% 30%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(259 25% 30%);
+    --primary: hsl(348 78% 62%);
+    --primary-foreground: hsl(345 100% 98%);
+    --secondary: hsl(158 55% 84%);
+    --secondary-foreground: hsl(163 45% 21%);
+    --muted: hsl(43 92% 92%);
+    --muted-foreground: hsl(259 14% 46%);
+    --accent: hsl(203 92% 87%);
+    --accent-foreground: hsl(211 55% 27%);
+    --destructive: hsl(0 72% 55%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(35 60% 84%);
+    --input: hsl(35 55% 80%);
+    --ring: hsl(348 78% 62%);
+    --chart-1: hsl(340 85% 74%);
+    --chart-2: hsl(172 55% 52%);
+    --chart-3: hsl(203 80% 62%);
+    --chart-4: hsl(44 95% 60%);
+    --chart-5: hsl(25 95% 65%);
+    --radius: 1.25rem;
+}
+
+@keyframes float-soft {
+    0%,
+    100% {
+        transform: translateY(0) rotate(var(--float-rotate, 0deg));
+    }
+    50% {
+        transform: translateY(-14px) rotate(var(--float-rotate, 0deg));
+    }
+}
+
+@utility animate-float-soft {
+    animation: float-soft 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-float-soft {
+        animation: none;
     }
 }
