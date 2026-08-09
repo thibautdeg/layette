@@ -12,18 +12,12 @@ withDefaults(
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-background font-baby">
-        <div class="pointer-events-none fixed inset-0 overflow-hidden">
-            <div
-                class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-            ></div>
-            <div
-                class="absolute top-48 -right-28 h-80 w-80 rounded-full bg-accent/70 blur-3xl dark:bg-accent/30"
-            ></div>
-            <div
-                class="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-secondary/70 blur-3xl dark:bg-secondary/30"
-            ></div>
-        </div>
+    <div
+        class="relative min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,var(--background)_0%,var(--muted)_58%,var(--background)_100%)] font-baby"
+    >
+        <div
+            class="pointer-events-none fixed inset-0 [background-image:linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_82%)] [background-size:40px_40px] opacity-40 dark:opacity-20"
+        ></div>
 
         <main
             class="relative mx-auto w-full px-4 py-6 sm:py-10"
