@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\User;
+use Database\Seeders\LaratrustSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,6 +19,10 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(function () {
+        $this->withoutVite();
+        $this->seed(LaratrustSeeder::class);
+    })
     ->in('Feature');
 
 /*
@@ -44,7 +51,20 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function admin(): User
 {
-    // ..
+    $user = User::factory()->create();
+
+    $user->syncRoles([Role::Admin->value]);
+
+    return $user;
+}
+
+function donor(): User
+{
+    $user = User::factory()->create();
+
+    $user->syncRoles([Role::Donor->value]);
+
+    return $user;
 }

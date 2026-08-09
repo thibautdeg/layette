@@ -17,6 +17,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        $middleware->redirectGuestsTo(function (Request $request): string {
+            if ($request->routeIs('list.contribute.*')) {
+                return route('login', ['bedoeling' => 'bijdragen']);
+            }
+
+            if ($request->routeIs('account.*') || $request->is('mijn')) {
+                return route('login', ['bedoeling' => 'opvolgen']);
+            }
+
+            return route('login');
+        });
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

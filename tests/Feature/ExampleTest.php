@@ -1,7 +1,14 @@
 <?php
 
-test('returns a successful response', function () {
-    $response = $this->get(route('home'));
+use App\Models\GiftList;
 
-    $response->assertOk();
+test('the home page redirects to the gift list', function () {
+    $giftList = GiftList::factory()->create();
+
+    $this->get(route('home'))
+        ->assertRedirect(route('list.view', ['giftList' => $giftList->slug]));
+});
+
+test('the home page returns a 404 when there is no gift list yet', function () {
+    $this->get(route('home'))->assertNotFound();
 });
