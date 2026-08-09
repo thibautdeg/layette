@@ -23,7 +23,6 @@ const props = defineProps<{
     payment: {
         iban: string | null;
         account_holder: string | null;
-        wero_phone: string | null;
         qr_svg: string | null;
     };
     listSlug: string;
@@ -110,40 +109,6 @@ function copyEverything() {
             }}</Badge>
         </header>
 
-        <Card
-            class="mb-4 rounded-3xl border-2 border-dashed border-primary/40 bg-primary/5"
-        >
-            <CardHeader class="pb-2">
-                <CardTitle class="font-display text-lg"
-                    >Jouw referentie</CardTitle
-                >
-            </CardHeader>
-            <CardContent>
-                <div
-                    class="flex items-center justify-between gap-2 rounded-md bg-muted p-3"
-                >
-                    <span class="font-mono text-xl font-bold tracking-wider">{{
-                        contribution.reference
-                    }}</span>
-                    <Button
-                        variant="outline"
-                        size="icon-sm"
-                        @click="copy('reference', contribution.reference)"
-                    >
-                        <Check
-                            v-if="copiedField === 'reference'"
-                            class="size-4 text-green-600"
-                        />
-                        <Copy v-else class="size-4" />
-                    </Button>
-                </div>
-                <p class="mt-2 text-sm text-muted-foreground">
-                    Zet deze code in de mededeling van je overschrijving. Zo
-                    weten we meteen waarvoor je storting dient.
-                </p>
-            </CardContent>
-        </Card>
-
         <div class="flex flex-col gap-4">
             <Card
                 v-if="payment.iban"
@@ -151,8 +116,7 @@ function copyEverything() {
             >
                 <CardHeader class="pb-2">
                     <CardTitle class="font-display text-lg"
-                        >{{ payment.wero_phone ? '1. ' : '' }}Via
-                        overschrijving</CardTitle
+                        >Via overschrijving</CardTitle
                     >
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2 text-sm">
@@ -283,34 +247,7 @@ function copyEverything() {
             </Card>
 
             <Card
-                v-if="payment.wero_phone"
-                class="rounded-3xl border-2 border-white/90 shadow-sm"
-            >
-                <CardHeader class="pb-2">
-                    <CardTitle class="font-display text-lg"
-                        >{{ payment.iban ? '2. ' : '' }}Via Wero</CardTitle
-                    >
-                </CardHeader>
-                <CardContent class="text-sm">
-                    <p>
-                        Stuur
-                        <strong>{{
-                            formatEuro(contribution.amount ?? 0)
-                        }}</strong>
-                        via Wero (in je bankapp) naar
-                        <strong class="whitespace-nowrap">{{
-                            payment.wero_phone
-                        }}</strong>
-                        en zet de referentie in het bericht.
-                    </p>
-                    <p class="mt-1 text-muted-foreground">
-                        Instant en gratis, vanuit de bankapp die je al hebt.
-                    </p>
-                </CardContent>
-            </Card>
-
-            <Card
-                v-if="!payment.iban && !payment.wero_phone"
+                v-if="!payment.iban"
                 class="rounded-3xl border-2 border-white/90 shadow-sm"
             >
                 <CardContent class="p-4 text-sm text-muted-foreground">
