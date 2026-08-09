@@ -146,55 +146,34 @@ function copyEverything() {
 
         <div class="flex flex-col gap-4">
             <Card
-                v-if="payment.wero_phone"
-                class="rounded-3xl border-2 border-white/90 shadow-sm"
-            >
-                <CardHeader class="pb-2">
-                    <CardTitle class="font-display text-lg"
-                        >1. Via Wero</CardTitle
-                    >
-                </CardHeader>
-                <CardContent class="text-sm">
-                    <p>
-                        Stuur
-                        <strong>{{
-                            formatEuro(contribution.amount ?? 0)
-                        }}</strong>
-                        via Wero (in je bankapp) naar
-                        <strong class="whitespace-nowrap">{{
-                            payment.wero_phone
-                        }}</strong>
-                        en zet de referentie in het bericht.
-                    </p>
-                    <p class="mt-1 text-muted-foreground">
-                        Instant en gratis, vanuit de bankapp die je al hebt.
-                    </p>
-                </CardContent>
-            </Card>
-
-            <Card
                 v-if="payment.iban"
                 class="rounded-3xl border-2 border-white/90 shadow-sm"
             >
                 <CardHeader class="pb-2">
                     <CardTitle class="font-display text-lg"
-                        >{{ payment.wero_phone ? '2.' : '1.' }} Via
+                        >{{ payment.wero_phone ? '1. ' : '' }}Via
                         overschrijving</CardTitle
                     >
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2 text-sm">
                     <div
                         v-if="payment.qr_svg"
-                        class="mb-2 flex flex-col items-center gap-2"
+                        class="mb-2 flex flex-col items-center gap-3"
                     >
                         <div
                             v-html="payment.qr_svg"
                             class="overflow-hidden rounded-2xl border bg-white [&>svg]:block [&>svg]:h-44 [&>svg]:w-44"
                         />
+                        <p class="text-center">
+                            <strong>Scan deze QR-code met je bankapp</strong>
+                            (open je bankapp en kies scannen of QR-code). De
+                            overschrijving staat dan volledig klaar: het bedrag,
+                            ons rekeningnummer en de mededeling zijn al
+                            ingevuld. Je hoeft enkel nog te bevestigen.
+                        </p>
                         <p class="text-center text-xs text-muted-foreground">
-                            Scan de QR-code met je bankapp: bedrag,
-                            rekeningnummer en mededeling staan meteen juist. Of
-                            vul alles zelf in:
+                            Lukt het scannen niet? Vul de overschrijving dan
+                            zelf in met de gegevens hieronder.
                         </p>
                     </div>
                     <div class="flex items-center justify-between gap-2">
@@ -300,6 +279,33 @@ function copyEverything() {
                                 : 'Kopieer alles in één keer'
                         }}
                     </Button>
+                </CardContent>
+            </Card>
+
+            <Card
+                v-if="payment.wero_phone"
+                class="rounded-3xl border-2 border-white/90 shadow-sm"
+            >
+                <CardHeader class="pb-2">
+                    <CardTitle class="font-display text-lg"
+                        >{{ payment.iban ? '2. ' : '' }}Via Wero</CardTitle
+                    >
+                </CardHeader>
+                <CardContent class="text-sm">
+                    <p>
+                        Stuur
+                        <strong>{{
+                            formatEuro(contribution.amount ?? 0)
+                        }}</strong>
+                        via Wero (in je bankapp) naar
+                        <strong class="whitespace-nowrap">{{
+                            payment.wero_phone
+                        }}</strong>
+                        en zet de referentie in het bericht.
+                    </p>
+                    <p class="mt-1 text-muted-foreground">
+                        Instant en gratis, vanuit de bankapp die je al hebt.
+                    </p>
                 </CardContent>
             </Card>
 
