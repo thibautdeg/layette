@@ -46,7 +46,7 @@ class AccountContributionController extends Controller
                     : null,
             ])->values(),
             'payment' => [
-                'iban' => $giftList->iban,
+                'iban' => $giftList->formattedIban(),
                 'account_holder' => $giftList->account_holder,
             ],
             'listSlug' => $giftList->slug,

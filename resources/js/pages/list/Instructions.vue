@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Check, Copy } from '@lucide/vue';
-import { ref } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ArrowLeft, Check, Copy, MailCheck } from '@lucide/vue';
+import { computed, ref } from 'vue';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
 import PaymentQr from '@/components/PaymentQr.vue';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,9 @@ const props = defineProps<{
     };
     listSlug: string;
 }>();
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
 
 const copiedField = ref<string | null>(null);
 
@@ -111,6 +114,19 @@ function copyEverything() {
         </header>
 
         <div class="flex flex-col gap-4">
+            <div
+                v-if="user && payment.iban"
+                class="flex items-start gap-3 rounded-3xl border-2 border-white/90 bg-white/70 p-4 text-sm shadow-sm"
+            >
+                <MailCheck class="mt-0.5 size-5 shrink-0 text-green-600" />
+                <p>
+                    We stuurden alle betaalgegevens naar
+                    <strong>{{ user.email }}</strong
+                    >. Je hoeft nu niets te doen — maak het over wanneer het je
+                    uitkomt.
+                </p>
+            </div>
+
             <Card
                 v-if="payment.iban"
                 class="rounded-3xl border-2 border-white/90 shadow-sm"
@@ -124,7 +140,6 @@ function copyEverything() {
                     <PaymentQr
                         v-if="payment.qr_svg"
                         :qr-svg="payment.qr_svg"
-                        :reference="contribution.reference"
                         class="mb-2"
                     />
                     <div class="flex items-center justify-between gap-2">
@@ -250,8 +265,8 @@ function copyEverything() {
 
         <p class="mt-6 text-center text-sm text-muted-foreground">
             Zodra we je storting op de rekening zien, bevestigen we je bijdrage.
-            Je vindt deze pagina ook terug via je account of via de link in je
-            bevestigingsmail.
+            Vind je de mail niet meer terug? Alle gegevens staan ook bij je
+            bijdragen in je account.
         </p>
     </template>
 </template>

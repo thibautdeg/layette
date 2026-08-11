@@ -123,7 +123,7 @@ test('the received mail for a free contribution contains the payment details', f
     $rendered = (new ContributionReceivedMail($contribution))->render();
 
     expect($rendered)
-        ->toContain($giftList->iban)
+        ->toContain($giftList->formattedIban())
         ->toContain($contribution->reference)
         ->toContain('vrije bijdrage');
 });

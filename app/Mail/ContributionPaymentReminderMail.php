@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ContributionReceivedMail extends Mailable
+class ContributionPaymentReminderMail extends Mailable
 {
     use Queueable;
     use SerializesModels;
@@ -21,9 +21,7 @@ class ContributionReceivedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->contribution->isPurchase()
-                ? 'Bedankt voor je reservatie!'
-                : 'Bedankt voor je bijdrage!',
+            subject: 'Een kleine herinnering aan je bijdrage',
         );
     }
 
@@ -32,15 +30,13 @@ class ContributionReceivedMail extends Mailable
         $giftList = $this->contribution->gift->giftList ?? GiftList::current();
 
         return new Content(
-            markdown: 'mail.contribution-received',
+            markdown: 'mail.contribution-payment-reminder',
             with: [
                 'contribution' => $this->contribution,
                 'gift' => $this->contribution->gift,
                 'giftList' => $giftList,
                 'accountUrl' => route('account.contributions'),
-                'qrPng' => $this->contribution->isPurchase()
-                    ? null
-                    : app(GeneratePaymentQrAction::class)->png($giftList, $this->contribution),
+                'qrPng' => app(GeneratePaymentQrAction::class)->png($giftList, $this->contribution),
             ],
         );
     }

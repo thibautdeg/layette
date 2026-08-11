@@ -209,7 +209,6 @@ function cancelContribution(contribution: ContributionInfo) {
                     <PaymentQr
                         v-if="contribution.qr_svg"
                         :qr-svg="contribution.qr_svg"
-                        :reference="contribution.reference"
                         class="my-3"
                     >
                         <template #fallback>
