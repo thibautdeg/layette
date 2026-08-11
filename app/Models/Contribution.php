@@ -25,10 +25,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $together_with
  * @property int|null $amount
  * @property string|null $message
+ * @property int $payment_reminders_sent
  * @property int|null $gift_id
  * @property int $user_id
  * @property CarbonImmutable|null $confirmed_at
  * @property CarbonImmutable|null $cancelled_at
+ * @property CarbonImmutable|null $payment_reminded_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -38,6 +40,13 @@ class Contribution extends Model
 {
     /** @use HasFactory<ContributionFactory> */
     use HasFactory;
+
+    /**
+     * Days after creation on which a payment reminder goes out, one entry per reminder.
+     *
+     * @var list<int>
+     */
+    public const PAYMENT_REMINDER_DAYS = [3, 10];
 
     protected $attributes = [
         'status' => 'pending',
@@ -49,10 +58,12 @@ class Contribution extends Model
             'type' => ContributionType::class,
             'status' => ContributionStatus::class,
             'amount' => 'integer',
+            'payment_reminders_sent' => 'integer',
             'gift_id' => 'integer',
             'user_id' => 'integer',
             'confirmed_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'payment_reminded_at' => 'datetime',
         ];
     }
 
