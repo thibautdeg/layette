@@ -32,11 +32,6 @@ class ContributionBuilder extends Builder
         return $this->pending()->where('created_at', '<', now()->subWeek());
     }
 
-    /**
-     * Contributions that still owe us a transfer and are old enough for their
-     * next reminder. Counting reminders already sent keeps the schedule intact
-     * even when the command misses a day.
-     */
     public function dueForPaymentReminder(): self
     {
         return $this->pending()
