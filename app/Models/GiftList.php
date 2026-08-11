@@ -70,6 +70,21 @@ class GiftList extends Model
     }
 
     /**
+     * The IBAN in groups of four, which reads and copies over more easily
+     * than one long string. Bank apps accept the spaces.
+     */
+    public function formattedIban(): ?string
+    {
+        if ($this->iban === null) {
+            return null;
+        }
+
+        $iban = mb_strtoupper(str_replace(' ', '', $this->iban));
+
+        return trim(chunk_split($iban, 4, ' '));
+    }
+
+    /**
      * @return HasMany<Gift, $this>
      */
     public function gifts(): HasMany

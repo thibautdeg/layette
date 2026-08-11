@@ -10,7 +10,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\URL;
 
 class ContributionReceivedMail extends Mailable
 {
@@ -38,7 +37,6 @@ class ContributionReceivedMail extends Mailable
                 'contribution' => $this->contribution,
                 'gift' => $this->contribution->gift,
                 'giftList' => $giftList,
-                'instructionsUrl' => URL::signedRoute('contribution.instructions', ['contribution' => $this->contribution->reference]),
                 'accountUrl' => route('account.contributions'),
                 'qrPng' => $this->contribution->isPurchase()
                     ? null

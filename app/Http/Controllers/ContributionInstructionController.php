@@ -31,7 +31,7 @@ class ContributionInstructionController extends Controller
                 'is_free' => $contribution->isFree(),
             ],
             'payment' => [
-                'iban' => $giftList->iban,
+                'iban' => $giftList->formattedIban(),
                 'account_holder' => $giftList->account_holder,
                 'qr_svg' => $contribution->isPurchase() ? null : $paymentQr->handle($giftList, $contribution),
             ],
