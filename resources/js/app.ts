@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import { initializeTheme } from '@/composables/useAppearance';
+import AccountLayout from '@/layouts/AccountLayout.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import PublicLayout from '@/layouts/PublicLayout.vue';
@@ -15,8 +16,11 @@ createInertiaApp({
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('list/'):
-            case name.startsWith('account/'):
                 return PublicLayout;
+            case name.startsWith('account/'):
+            case name === 'settings/Profile':
+            case name === 'settings/Security':
+                return [PublicLayout, AccountLayout];
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
             default:

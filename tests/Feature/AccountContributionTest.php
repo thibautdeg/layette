@@ -26,6 +26,20 @@ test('a donor only sees their own contributions', function () {
         );
 });
 
+test('the account pages know whether the donor has a password to change', function () {
+    GiftList::factory()->create();
+    $socialUser = donor();
+    $socialUser->forceFill(['password' => null])->save();
+
+    $this->actingAs(donor())
+        ->get(route('account.contributions'))
+        ->assertInertia(fn (Assert $page) => $page->where('auth.has_password', true));
+
+    $this->actingAs($socialUser)
+        ->get(route('account.contributions'))
+        ->assertInertia(fn (Assert $page) => $page->where('auth.has_password', false));
+});
+
 test('a donor can update the message of a pending contribution', function () {
     $user = donor();
     $contribution = Contribution::factory()->for($user)->create();

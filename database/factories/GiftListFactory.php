@@ -25,7 +25,6 @@ class GiftListFactory extends Factory
             'iban' => 'BE68539007547034',
             'account_holder' => fake()->name(),
             'wero_phone' => '+32470123456',
-            'expected_at' => now()->addMonths(3)->toDateString(),
         ];
     }
 

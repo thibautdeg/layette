@@ -48,10 +48,6 @@ class UpdateGiftListRequest extends FormRequest
                 'string',
                 'max:20',
             ],
-            'expected_at' => [
-                'nullable',
-                'date',
-            ],
             'is_closed' => [
                 'required',
                 'boolean',

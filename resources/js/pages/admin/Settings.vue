@@ -22,7 +22,6 @@ interface GiftListInfo {
     iban: string | null;
     account_holder: string | null;
     wero_phone: string | null;
-    expected_at: string | null;
     is_closed: boolean;
 }
 
@@ -46,7 +45,6 @@ const form = useForm({
     iban: props.giftList.iban ?? '',
     account_holder: props.giftList.account_holder ?? '',
     wero_phone: props.giftList.wero_phone ?? '',
-    expected_at: props.giftList.expected_at ?? '',
     is_closed: props.giftList.is_closed,
     photo: null as File | null,
 });
@@ -65,7 +63,6 @@ function submit() {
         iban: data.iban === '' ? null : data.iban.replace(/\s/g, ''),
         account_holder: data.account_holder === '' ? null : data.account_holder,
         wero_phone: data.wero_phone === '' ? null : data.wero_phone,
-        expected_at: data.expected_at === '' ? null : data.expected_at,
         is_closed: data.is_closed,
         ...(data.photo ? { photo: data.photo } : {}),
     })).post(GiftListSettingController.update.url(), { preserveScroll: true });
@@ -123,8 +120,8 @@ function submit() {
                             placeholder="Bijvoorbeeld: Nora"
                         />
                         <p class="text-sm text-muted-foreground">
-                            Verschijnt bovenaan het profiel op de lijst. Laat
-                            leeg als jullie de naam nog geheim houden.
+                            Verschijnt bovenaan de lijst. Laat leeg om enkel de
+                            titel te tonen.
                         </p>
                         <InputError :message="form.errors.baby_name" />
                     </div>
@@ -136,12 +133,9 @@ function submit() {
                             v-model="form.baby_gender"
                             class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                         >
-                            <option value="">Nog niet tonen</option>
+                            <option value="">Niet tonen</option>
                             <option value="girl">🎀 Meisje</option>
                             <option value="boy">💙 Jongen</option>
-                            <option value="surprise">
-                                🎁 Verrassing — we houden het geheim
-                            </option>
                         </select>
                         <InputError :message="form.errors.baby_gender" />
                     </div>
@@ -153,7 +147,7 @@ function submit() {
                             v-model="form.intro"
                             rows="4"
                             class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-                            placeholder="Wie zijn jullie, wanneer wordt de baby verwacht…"
+                            placeholder="Stel jullie kleintje voor…"
                         ></textarea>
                         <InputError :message="form.errors.intro" />
                     </div>
@@ -173,16 +167,6 @@ function submit() {
                             @change="onPhotoChange"
                         />
                         <InputError :message="form.errors.photo" />
-                    </div>
-
-                    <div class="grid gap-2">
-                        <Label for="list-expected-at">Verwachte datum</Label>
-                        <Input
-                            id="list-expected-at"
-                            v-model="form.expected_at"
-                            type="date"
-                        />
-                        <InputError :message="form.errors.expected_at" />
                     </div>
 
                     <div class="grid gap-2">

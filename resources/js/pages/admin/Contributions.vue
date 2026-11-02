@@ -71,7 +71,6 @@ const props = defineProps<{
     };
     weekly: WeekInfo[];
     paymentDetailsMissing: boolean;
-    nameGuesses: { id: number; name: string; by: string; at: string | null }[];
 }>();
 
 const weeklyMax = computed(() =>
@@ -293,29 +292,6 @@ function cancelContribution(contribution: ContributionInfo) {
                         </span>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
-
-        <Card v-if="nameGuesses.length > 0">
-            <CardContent class="p-4">
-                <p class="mb-3 text-sm text-muted-foreground">
-                    🔮 Naamgokjes ({{ nameGuesses.length }})
-                </p>
-                <ul class="flex flex-col gap-1 text-sm">
-                    <li
-                        v-for="guess in nameGuesses"
-                        :key="guess.id"
-                        class="flex flex-wrap items-baseline gap-x-2"
-                    >
-                        <span class="font-semibold">{{ guess.name }}</span>
-                        <span class="text-muted-foreground">
-                            — {{ guess.by
-                            }}<template v-if="guess.at">
-                                ({{ guess.at }})</template
-                            >
-                        </span>
-                    </li>
-                </ul>
             </CardContent>
         </Card>
 
