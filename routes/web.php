@@ -5,7 +5,6 @@ use App\Http\Controllers\ContributionInstructionController;
 use App\Http\Controllers\FreeContributionController;
 use App\Http\Controllers\GiftContributionController;
 use App\Http\Controllers\GiftListController;
-use App\Http\Controllers\NameGuessController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Middleware\PreventSearchIndexing;
 use App\Models\GiftList;
@@ -48,10 +47,6 @@ Route::middleware(PreventSearchIndexing::class)->group(function () {
         Route::post('lijst/{giftList:slug}/vrije-bijdrage', [FreeContributionController::class, 'store'])
             ->middleware('throttle:10,1')
             ->name('list.free.store');
-
-        Route::post('lijst/{giftList:slug}/naamgok', [NameGuessController::class, 'store'])
-            ->middleware('throttle:10,1')
-            ->name('list.guess.store');
     });
 
     Route::get('bijdrage/{contribution:reference}', [ContributionInstructionController::class, 'view'])->name('contribution.instructions');

@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { ArrowLeft } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import AccountContributionController from '@/actions/App/Http/Controllers/AccountContributionController';
 import ContributionInstructionController from '@/actions/App/Http/Controllers/ContributionInstructionController';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
@@ -22,7 +21,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatEuro } from '@/lib/money';
-import { logout } from '@/routes';
 
 interface ContributionInfo {
     id: number;
@@ -48,9 +46,6 @@ defineProps<{
     };
     listSlug: string;
 }>();
-
-const page = usePage();
-const user = computed(() => page.props.auth.user);
 
 const editing = ref<ContributionInfo | null>(null);
 
@@ -113,36 +108,17 @@ function cancelContribution(contribution: ContributionInfo) {
 <template>
     <Head title="Mijn bijdragen" />
 
-    <div class="mb-6 flex items-center justify-between">
-        <Link
-            :href="GiftListController.view({ giftList: listSlug })"
-            class="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
-        >
-            <ArrowLeft class="size-4" />
-            Naar de lijst
-        </Link>
-        <Link
-            :href="logout()"
-            as="button"
-            class="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-        >
-            Afmelden
-        </Link>
-    </div>
-
-    <h1 class="mb-1 font-display text-3xl font-bold">
-        Dag {{ user?.name?.split(' ')[0] }}! 👋
-    </h1>
-    <p class="mb-6 text-sm text-muted-foreground">
-        Dit zijn de bijdragen van je account ({{ user?.email }}).
-    </p>
-
-    <p
+    <div
         v-if="contributions.length === 0"
-        class="rounded-md bg-muted p-4 text-sm text-muted-foreground"
+        class="rounded-3xl border-2 border-dashed bg-card/70 p-6 text-center text-sm text-muted-foreground"
     >
-        Je hebt nog geen bijdragen gedaan.
-    </p>
+        <p>Je hebt nog geen bijdragen gedaan.</p>
+        <Button as-child class="mt-4 rounded-full font-bold">
+            <Link :href="GiftListController.view({ giftList: listSlug })">
+                Bekijk de cadeaus
+            </Link>
+        </Button>
+    </div>
 
     <div class="flex flex-col gap-4">
         <Card

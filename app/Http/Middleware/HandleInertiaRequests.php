@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'is_admin' => $request->user()?->isAdmin() ?? false,
+                'has_password' => $request->user()?->password !== null,
             ],
             'status' => fn () => $request->session()->get('status'),
             'import_result' => fn () => $request->session()->get('import_result'),

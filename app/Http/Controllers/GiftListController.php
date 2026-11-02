@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Gift;
 use App\Models\GiftList;
-use App\Models\NameGuess;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -13,7 +11,7 @@ use Inertia\Response;
 
 class GiftListController extends Controller
 {
-    public function view(Request $request, GiftList $giftList): Response
+    public function view(GiftList $giftList): Response
     {
         $gifts = Gift::query()
             ->whereBelongsTo($giftList)
@@ -37,25 +35,11 @@ class GiftListController extends Controller
                 ] : null,
                 'intro' => $giftList->intro,
                 'photo_url' => $giftList->photo_path !== null ? Storage::disk(config('filesystems.uploads'))->url($giftList->photo_path) : null,
-                'expected_at' => $giftList->expected_at?->toDateString(),
-                'days_until_due' => $giftList->daysUntilDue(),
-                'pregnancy_week' => $giftList->pregnancyWeek(),
                 'is_closed' => $giftList->isClosed(),
             ],
             'gifts' => $available->concat($unavailable)
                 ->map(fn (Gift $gift): array => $this->giftPayload($gift, $giftList->isClosed()))
                 ->values(),
-            'nameGuesses' => NameGuess::query()->get()
-                ->groupBy('name')
-                ->map(fn ($group, string $name): array => [
-                    'name' => $name,
-                    'count' => $group->count(),
-                ])
-                ->sortByDesc('count')
-                ->values(),
-            'myNameGuess' => $request->user() !== null
-                ? NameGuess::query()->where('user_id', $request->user()->id)->first()?->name
-                : null,
         ])->withViewData([
             'openGraph' => [
                 'title' => $giftList->title,

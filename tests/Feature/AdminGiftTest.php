@@ -111,7 +111,6 @@ test('an admin can update the list settings and close the list', function () {
         'iban' => 'BE68539007547034',
         'account_holder' => 'Thibaut & partner',
         'wero_phone' => '+32470123456',
-        'expected_at' => '2026-11-01',
         'is_closed' => true,
     ])->assertRedirect();
 

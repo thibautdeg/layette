@@ -24,7 +24,6 @@ class GiftListSeeder extends Seeder
             'iban' => null,
             'account_holder' => null,
             'wero_phone' => null,
-            'expected_at' => null,
         ]);
     }
 }

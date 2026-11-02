@@ -28,7 +28,6 @@ class GiftListSettingController extends Controller
                 'iban' => $giftList->iban,
                 'account_holder' => $giftList->account_holder,
                 'wero_phone' => $giftList->wero_phone,
-                'expected_at' => $giftList->expected_at?->toDateString(),
                 'is_closed' => $giftList->isClosed(),
             ],
         ]);

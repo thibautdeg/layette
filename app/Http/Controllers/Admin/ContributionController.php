@@ -9,7 +9,6 @@ use App\Models\Contribution;
 use App\Models\ContributionEvent;
 use App\Models\Gift;
 use App\Models\GiftList;
-use App\Models\NameGuess;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -56,13 +55,6 @@ class ContributionController extends Controller
             'stats' => $this->stats($contributions),
             'weekly' => $this->weekly($contributions),
             'paymentDetailsMissing' => $this->paymentDetailsMissing(),
-            'nameGuesses' => NameGuess::query()->with('user')->latest()->get()
-                ->map(fn (NameGuess $guess): array => [
-                    'id' => $guess->id,
-                    'name' => $guess->name,
-                    'by' => $guess->user->name,
-                    'at' => $guess->created_at?->format('d/m/Y'),
-                ])->values(),
         ]);
     }
 
