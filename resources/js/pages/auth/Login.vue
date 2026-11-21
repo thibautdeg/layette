@@ -37,7 +37,7 @@ const registerUrl = props.intent
 
     <div
         v-if="intent === 'bijdragen'"
-        class="mb-4 rounded-md bg-muted p-3 text-sm text-muted-foreground"
+        class="mb-4 rounded-2xl bg-cream p-3 text-sm font-semibold inked"
     >
         Leuk dat je iets wil geven! 🎁 Meld je eerst even aan — daarna kom je
         meteen terug bij het cadeau. Zo weten we van wie de bijdrage komt en kan
@@ -46,7 +46,7 @@ const registerUrl = props.intent
 
     <div
         v-else-if="intent === 'opvolgen'"
-        class="mb-4 rounded-md bg-muted p-3 text-sm text-muted-foreground"
+        class="mb-4 rounded-2xl bg-cream p-3 text-sm font-semibold inked"
     >
         Meld je aan om je eigen bijdragen te bekijken en op te volgen.
     </div>

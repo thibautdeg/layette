@@ -26,7 +26,7 @@ const page = usePage();
     <Head title="Wachtwoord" />
 
     <div class="flex flex-col gap-6">
-        <Card class="rounded-3xl border-2 border-white/90 shadow-sm">
+        <Card class="bg-white">
             <CardContent class="space-y-6">
                 <Heading
                     variant="small"

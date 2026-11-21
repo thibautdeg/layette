@@ -230,3 +230,26 @@ test('the instruction page is not visible to others without a signed link', func
     $this->get(URL::signedRoute('contribution.instructions', ['contribution' => $contribution->reference]))
         ->assertSuccessful();
 });
+
+test('the gift page shows how much is already in the pot and how many people chipped in', function () {
+    $giftList = GiftList::factory()->create();
+    $gift = Gift::factory()->for($giftList)->create([
+        'price' => 10000,
+        'shop_url' => 'https://example.com/kinderwagen',
+        'allows_partial_contributions' => true,
+    ]);
+
+    Contribution::factory()->for($gift)->create(['amount' => 2500]);
+    Contribution::factory()->for($gift)->confirmed()->create(['amount' => 1500]);
+    Contribution::factory()->for($gift)->cancelled()->create(['amount' => 4000]);
+
+    $this->actingAs(donor())
+        ->get(route('list.contribute.create', ['giftList' => $giftList->slug, 'gift' => $gift]))
+        ->assertInertia(fn ($page) => $page
+            ->component('list/Contribute')
+            ->where('gift.shop_url', 'https://example.com/kinderwagen')
+            ->where('gift.pledged', 4000)
+            ->where('gift.remaining', 6000)
+            ->where('gift.contributor_count', 2)
+        );
+});

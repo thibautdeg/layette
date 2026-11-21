@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Check, Copy, MailCheck } from '@lucide/vue';
+import { Check, Copy, Gift, MailCheck, X } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
 import PaymentQr from '@/components/PaymentQr.vue';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatEuro } from '@/lib/money';
 
 interface ContributionInfo {
@@ -50,6 +47,42 @@ function euroValue(cents: number): string {
     return (cents / 100).toFixed(2).replace('.', ',');
 }
 
+const paymentFields = computed(() =>
+    [
+        {
+            key: 'iban',
+            label: 'Rekeningnummer',
+            display: props.payment.iban,
+            value: props.payment.iban,
+            mono: true,
+        },
+        {
+            key: 'holder',
+            label: 'Naam',
+            display: props.payment.account_holder,
+            value: props.payment.account_holder,
+            mono: false,
+        },
+        {
+            key: 'amount',
+            label: 'Bedrag',
+            display: formatEuro(props.contribution.amount ?? 0),
+            value: ((props.contribution.amount ?? 0) / 100).toFixed(2),
+            mono: false,
+        },
+        {
+            key: 'reference',
+            label: 'Mededeling',
+            display: props.contribution.reference,
+            value: props.contribution.reference,
+            mono: true,
+        },
+    ].filter(
+        (field): field is typeof field & { display: string; value: string } =>
+            field.value !== null && field.display !== null,
+    ),
+);
+
 function copyEverything() {
     const lines = [
         `Rekeningnummer: ${props.payment.iban}`,
@@ -65,208 +98,188 @@ function copyEverything() {
 </script>
 
 <template>
-    <Head title="Betaalinstructies" />
+    <Head :title="isPurchase ? 'Gereserveerd!' : 'Betaalinstructies'" />
 
-    <Link
-        :href="GiftListController.view({ giftList: listSlug })"
-        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
-    >
-        <ArrowLeft class="size-4" />
-        Terug naar de lijst
-    </Link>
+    <div class="flex flex-col gap-5">
+        <section
+            class="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] px-5 pt-4 pb-7 text-center chunky-lg"
+            :class="isPurchase ? 'bg-sky' : 'bg-tangerine'"
+        >
+            <span
+                class="absolute top-16 left-7 size-4.5 rounded-full bg-sun inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-28 right-9 h-3 w-6.5 rotate-30 rounded-md inked"
+                :class="isPurchase ? 'bg-tangerine' : 'bg-sky'"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-56 left-5 h-2.5 w-6 -rotate-25 rounded-md bg-white inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-48 right-6 size-3.5 rounded-full bg-mint inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-8 left-1/3 size-3 rotate-45 bg-cream inked"
+                aria-hidden="true"
+            ></span>
 
-    <template v-if="isPurchase">
-        <Card class="rounded-3xl border-2 border-white/90 shadow-md">
-            <CardContent class="p-6 text-center">
-                <div class="mb-2 text-4xl" aria-hidden="true">🎀</div>
-                <h1 class="font-display text-3xl font-bold">
-                    Bedankt, {{ contribution.name }}!
-                </h1>
-                <p class="mt-2 text-muted-foreground">
-                    <strong>{{ gift.title }}</strong> staat nu als gereserveerd
-                    op de lijst. Je koopt en geeft het zelf, dus je hoeft verder
-                    niets te doen.
-                </p>
-            </CardContent>
-        </Card>
-    </template>
+            <Link
+                :href="GiftListController.view({ giftList: listSlug })"
+                aria-label="Terug naar de lijst"
+                class="relative flex size-11 pressable items-center justify-center self-end rounded-[14px] bg-white chunky-sm"
+            >
+                <X class="size-5" :stroke-width="2.6" />
+            </Link>
 
-    <template v-else>
-        <header class="mb-6 text-center">
-            <div class="mb-2 text-4xl" aria-hidden="true">💛</div>
-            <h1 class="font-display text-3xl font-bold">
-                Bedankt, {{ contribution.name }}!
+            <div
+                class="relative flex size-40 items-center justify-center rounded-full border-[2.5px] border-ink bg-cream shadow-[6px_6px_0_var(--color-ink)]"
+            >
+                <Gift class="size-22" :stroke-width="1.5" aria-hidden="true" />
+            </div>
+
+            <h1
+                class="relative font-display text-5xl leading-none font-bold tracking-tight"
+            >
+                Joepie!
             </h1>
-            <p v-if="gift.is_free" class="mt-2 text-muted-foreground">
-                Je geeft
-                <strong>{{ formatEuro(contribution.amount ?? 0) }}</strong> als
-                vrije bijdrage. Wat lief!
+
+            <p
+                v-if="isPurchase"
+                class="relative max-w-sm text-[17px] leading-snug font-bold"
+            >
+                Bedankt, {{ contribution.name }}!
+                <strong class="font-extrabold">{{ gift.title }}</strong> staat
+                nu als gereserveerd op de lijst. Je koopt en geeft het zelf, dus
+                je hoeft verder niets te doen.
             </p>
-            <p v-else class="mt-2 text-muted-foreground">
-                Je draagt
-                <strong>{{ formatEuro(contribution.amount ?? 0) }}</strong> bij
-                aan <strong>{{ gift.title }}</strong
+            <p
+                v-else-if="gift.is_free"
+                class="relative max-w-sm text-[17px] leading-snug font-bold"
+            >
+                Bedankt, {{ contribution.name }}! Je geeft
+                <strong class="font-extrabold">{{
+                    formatEuro(contribution.amount ?? 0)
+                }}</strong>
+                als vrije bijdrage. Wat lief!
+            </p>
+            <p
+                v-else
+                class="relative max-w-sm text-[17px] leading-snug font-bold"
+            >
+                Bedankt, {{ contribution.name }}! Jouw
+                <strong class="font-extrabold">{{
+                    formatEuro(contribution.amount ?? 0)
+                }}</strong>
+                gaat in de pot voor
+                <strong class="font-extrabold">{{ gift.title }}</strong
                 >.
             </p>
-            <Badge variant="secondary" class="mt-2">{{
-                contribution.status_label
-            }}</Badge>
-        </header>
 
-        <div class="flex flex-col gap-4">
+            <span
+                v-if="!isPurchase"
+                class="relative rounded-full border-2 border-ink bg-cream px-3 py-1 text-xs font-extrabold"
+            >
+                {{ contribution.status_label }}
+            </span>
+        </section>
+
+        <template v-if="!isPurchase">
             <div
                 v-if="user && payment.iban"
-                class="flex items-start gap-3 rounded-3xl border-2 border-white/90 bg-white/70 p-4 text-sm shadow-sm"
+                class="flex items-start gap-3 rounded-3xl bg-mint p-4 text-sm font-semibold inked"
             >
-                <MailCheck class="mt-0.5 size-5 shrink-0 text-green-600" />
+                <MailCheck class="mt-0.5 size-5 shrink-0" />
                 <p>
                     We stuurden alle betaalgegevens naar
-                    <strong>{{ user.email }}</strong
+                    <strong class="font-extrabold">{{ user.email }}</strong
                     >. Je hoeft nu niets te doen — maak het over wanneer het je
                     uitkomt.
                 </p>
             </div>
 
-            <Card
+            <div
                 v-if="payment.iban"
-                class="rounded-3xl border-2 border-white/90 shadow-sm"
+                class="flex flex-col gap-3 rounded-3xl bg-white p-4.5 chunky"
             >
-                <CardHeader class="pb-2">
-                    <CardTitle class="font-display text-lg"
-                        >Via overschrijving</CardTitle
-                    >
-                </CardHeader>
-                <CardContent class="flex flex-col gap-2 text-sm">
-                    <PaymentQr
-                        v-if="payment.qr_svg"
-                        :qr-svg="payment.qr_svg"
-                        class="mb-2"
-                    />
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-muted-foreground">Rekeningnummer</p>
-                            <p class="truncate font-mono font-medium">
-                                {{ payment.iban }}
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="icon-sm"
-                            @click="copy('iban', payment.iban)"
-                        >
-                            <Check
-                                v-if="copiedField === 'iban'"
-                                class="size-4 text-green-600"
-                            />
-                            <Copy v-else class="size-4" />
-                        </Button>
-                    </div>
-                    <div
-                        v-if="payment.account_holder"
-                        class="flex items-center justify-between gap-2"
-                    >
-                        <div class="min-w-0">
-                            <p class="text-muted-foreground">Naam</p>
-                            <p class="truncate font-medium">
-                                {{ payment.account_holder }}
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="icon-sm"
-                            @click="copy('holder', payment.account_holder)"
-                        >
-                            <Check
-                                v-if="copiedField === 'holder'"
-                                class="size-4 text-green-600"
-                            />
-                            <Copy v-else class="size-4" />
-                        </Button>
-                    </div>
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-muted-foreground">Bedrag</p>
-                            <p class="font-medium">
-                                {{ formatEuro(contribution.amount ?? 0) }}
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="icon-sm"
-                            @click="
-                                copy(
-                                    'amount',
-                                    ((contribution.amount ?? 0) / 100).toFixed(
-                                        2,
-                                    ),
-                                )
-                            "
-                        >
-                            <Check
-                                v-if="copiedField === 'amount'"
-                                class="size-4 text-green-600"
-                            />
-                            <Copy v-else class="size-4" />
-                        </Button>
-                    </div>
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-muted-foreground">Mededeling</p>
-                            <p class="font-mono font-medium">
-                                {{ contribution.reference }}
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="icon-sm"
-                            @click="copy('reference2', contribution.reference)"
-                        >
-                            <Check
-                                v-if="copiedField === 'reference2'"
-                                class="size-4 text-green-600"
-                            />
-                            <Copy v-else class="size-4" />
-                        </Button>
-                    </div>
+                <h2 class="font-display text-xl font-semibold">
+                    Via overschrijving
+                </h2>
 
-                    <Button
-                        variant="secondary"
-                        class="mt-2 w-full rounded-full font-bold"
-                        @click="copyEverything"
+                <PaymentQr v-if="payment.qr_svg" :qr-svg="payment.qr_svg" />
+
+                <div
+                    v-for="field in paymentFields"
+                    :key="field.key"
+                    class="flex items-center justify-between gap-2 rounded-2xl bg-cream px-3 py-2"
+                >
+                    <div class="min-w-0">
+                        <p class="text-xs font-extrabold text-bark uppercase">
+                            {{ field.label }}
+                        </p>
+                        <p
+                            class="truncate font-bold"
+                            :class="field.mono ? 'font-mono' : ''"
+                        >
+                            {{ field.display }}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="flex size-9 shrink-0 pressable items-center justify-center rounded-xl bg-white chunky-sm"
+                        :aria-label="`Kopieer ${field.label.toLowerCase()}`"
+                        @click="copy(field.key, field.value)"
                     >
                         <Check
-                            v-if="copiedField === 'everything'"
-                            class="size-4 text-green-600"
+                            v-if="copiedField === field.key"
+                            class="size-4 text-green-700"
                         />
                         <Copy v-else class="size-4" />
-                        {{
-                            copiedField === 'everything'
-                                ? 'Alles gekopieerd!'
-                                : 'Kopieer alles in één keer'
-                        }}
-                    </Button>
-                </CardContent>
-            </Card>
+                    </button>
+                </div>
 
-            <Card
-                v-if="!payment.iban"
-                class="rounded-3xl border-2 border-white/90 shadow-sm"
+                <button
+                    type="button"
+                    class="mt-1 flex h-13 pressable items-center justify-center gap-2 rounded-[18px] bg-sun font-extrabold chunky"
+                    @click="copyEverything"
+                >
+                    <Check v-if="copiedField === 'everything'" class="size-4" />
+                    <Copy v-else class="size-4" />
+                    {{
+                        copiedField === 'everything'
+                            ? 'Alles gekopieerd!'
+                            : 'Kopieer alles in één keer'
+                    }}
+                </button>
+            </div>
+
+            <div
+                v-else
+                class="rounded-3xl bg-white p-4.5 text-sm font-semibold inked"
             >
-                <CardContent class="p-4 text-sm text-muted-foreground">
-                    We bezorgen je onze rekeninggegevens persoonlijk. Hou zeker
-                    je referentie
-                    <span class="font-mono font-medium text-foreground">{{
-                        contribution.reference
-                    }}</span>
-                    bij de hand voor de mededeling van je overschrijving.
-                </CardContent>
-            </Card>
-        </div>
+                We bezorgen je onze rekeninggegevens persoonlijk. Hou zeker je
+                referentie
+                <span class="font-mono font-extrabold">{{
+                    contribution.reference
+                }}</span>
+                bij de hand voor de mededeling van je overschrijving.
+            </div>
 
-        <p class="mt-6 text-center text-sm text-muted-foreground">
-            Zodra we je storting op de rekening zien, bevestigen we je bijdrage.
-            Vind je de mail niet meer terug? Alle gegevens staan ook bij je
-            bijdragen in je account.
-        </p>
-    </template>
+            <p class="px-2 text-center text-sm font-semibold text-bark">
+                Zodra we je storting op de rekening zien, bevestigen we je
+                bijdrage. Vind je de mail niet meer terug? Alle gegevens staan
+                ook bij je bijdragen in je account.
+            </p>
+        </template>
+
+        <Link
+            :href="GiftListController.view({ giftList: listSlug })"
+            class="flex h-15 items-center justify-center rounded-[20px] border-[2.5px] border-ink bg-ink font-display text-[19px] font-semibold text-cream"
+        >
+            Terug naar de lijst
+        </Link>
+    </div>
 </template>

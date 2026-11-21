@@ -19,7 +19,7 @@ const user = computed(() => page.props.auth.user);
     <Head title="Mijn gegevens" />
 
     <div class="flex flex-col gap-6">
-        <Card class="rounded-3xl border-2 border-white/90 shadow-sm">
+        <Card class="bg-white">
             <CardContent class="flex flex-col space-y-6">
                 <Heading
                     variant="small"

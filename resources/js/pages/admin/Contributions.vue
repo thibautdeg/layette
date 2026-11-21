@@ -214,53 +214,63 @@ function cancelContribution(contribution: ContributionInfo) {
         </div>
 
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <Card>
-                <CardContent class="p-4">
-                    <p class="text-sm text-muted-foreground">Ontvangen</p>
-                    <p class="text-xl font-bold">
+            <div class="flex rounded-[22px] bg-tangerine text-ink chunky">
+                <div class="flex min-w-0 flex-col gap-1 p-4">
+                    <p class="order-2 text-sm font-extrabold">Ontvangen</p>
+                    <p
+                        class="order-1 font-display text-2xl leading-none font-bold sm:text-3xl"
+                    >
                         {{ formatEuro(totalConfirmed) }}
                     </p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardContent class="p-4">
-                    <p class="text-sm text-muted-foreground">In afwachting</p>
-                    <p class="text-xl font-bold">
+                </div>
+            </div>
+            <div class="flex rounded-[22px] bg-sky text-ink chunky">
+                <div class="flex min-w-0 flex-col gap-1 p-4">
+                    <p class="order-2 text-sm font-extrabold">In afwachting</p>
+                    <p
+                        class="order-1 font-display text-2xl leading-none font-bold sm:text-3xl"
+                    >
                         {{ formatEuro(totalPending) }}
                     </p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardContent class="p-4">
-                    <p class="text-sm text-muted-foreground">
+                </div>
+            </div>
+            <div class="flex rounded-[22px] bg-sun text-ink chunky">
+                <div class="flex min-w-0 flex-col gap-1 p-4">
+                    <p class="order-2 text-sm font-extrabold">
                         Lijst gefinancierd
                     </p>
-                    <p class="text-xl font-bold">
+                    <p
+                        class="order-1 font-display text-2xl leading-none font-bold sm:text-3xl"
+                    >
                         {{ stats.funding_percentage }}%
                     </p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardContent class="p-4">
-                    <p class="text-sm text-muted-foreground">Bijdragen</p>
-                    <p class="text-xl font-bold">
+                </div>
+            </div>
+            <div class="flex rounded-[22px] bg-mint text-ink chunky">
+                <div class="flex min-w-0 flex-col gap-1 p-4">
+                    <p class="order-2 text-sm font-extrabold">Bijdragen</p>
+                    <p
+                        class="order-1 font-display text-2xl leading-none font-bold sm:text-3xl"
+                    >
                         {{ stats.contribution_count }}
                     </p>
-                </CardContent>
-            </Card>
-            <Card class="col-span-2 lg:col-span-1">
-                <CardContent class="p-4">
-                    <p class="text-sm text-muted-foreground">
+                </div>
+            </div>
+            <div
+                class="col-span-2 flex rounded-[22px] bg-blush text-ink chunky lg:col-span-1"
+            >
+                <div class="flex min-w-0 flex-col gap-1 p-4">
+                    <p class="order-2 text-sm font-extrabold">
                         Populairste cadeau
                     </p>
                     <p
-                        class="truncate text-base font-bold"
+                        class="order-1 truncate font-display text-xl leading-tight font-bold"
                         :title="stats.top_gift ?? undefined"
                     >
                         {{ stats.top_gift ?? '—' }}
                     </p>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
 
         <Card>
@@ -281,7 +291,7 @@ function cancelContribution(contribution: ContributionInfo) {
                             {{ formatEuro(week.total) }}
                         </span>
                         <div
-                            class="w-full max-w-10 rounded-t-md bg-primary/80"
+                            class="w-full max-w-10 rounded-t-lg border-2 border-b-0 border-ink bg-tangerine dark:border-transparent"
                             :style="{
                                 height: `${Math.max((week.total / weeklyMax) * 72, week.total > 0 ? 6 : 2)}px`,
                             }"

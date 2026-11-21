@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ArrowLeft } from '@lucide/vue';
+import { ArrowLeft, ExternalLink, Gift } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import GiftContributionController from '@/actions/App/Http/Controllers/GiftContributionController';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
 import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { centsToEuroInput, euroInputToCents, formatEuro } from '@/lib/money';
+import { percentage } from '@/lib/playful';
 
 interface GiftListInfo {
     slug: string;
@@ -23,7 +22,10 @@ interface GiftInfo {
     description: string | null;
     price: number;
     image_url: string | null;
+    shop_url: string | null;
+    pledged: number;
     remaining: number;
+    contributor_count: number;
     allows_partial_contributions: boolean;
     allows_purchase: boolean;
     is_available: boolean;
@@ -57,6 +59,23 @@ const form = useForm({
 
 const isPurchase = computed(() => type.value === 'purchase');
 
+const progress = computed(() =>
+    percentage(props.gift.pledged, props.gift.price),
+);
+
+const submitLabel = computed(() => {
+    if (isPurchase.value) {
+        return 'Reserveer dit cadeau';
+    }
+
+    return selectedAmountCents.value > 0
+        ? `Leg ${formatEuro(selectedAmountCents.value)} in de pot`
+        : 'Bevestig mijn bijdrage';
+});
+
+const amountButtonClass = (active: boolean) =>
+    active ? 'bg-ink text-cream' : 'bg-cream text-ink hover:bg-white';
+
 const giftError = computed(() => (form.errors as Record<string, string>).gift);
 
 const selectedAmountCents = computed(() => euroInputToCents(form.amount));
@@ -83,113 +102,202 @@ function submit() {
 <template>
     <Head :title="`Bijdragen aan ${gift.title}`" />
 
-    <Link
-        :href="GiftListController.view({ giftList: giftList.slug })"
-        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
-    >
-        <ArrowLeft class="size-4" />
-        Terug naar de lijst
-    </Link>
+    <div class="flex flex-col gap-5">
+        <div class="flex items-center justify-between gap-3">
+            <Link
+                :href="GiftListController.view({ giftList: giftList.slug })"
+                aria-label="Terug naar de lijst"
+                class="flex size-11 shrink-0 pressable items-center justify-center rounded-[14px] bg-white chunky-sm"
+            >
+                <ArrowLeft class="size-5" :stroke-width="2.6" />
+            </Link>
+            <span class="font-display text-lg font-semibold">Cadeautje</span>
+            <span class="size-11 shrink-0" aria-hidden="true"></span>
+        </div>
 
-    <Card class="rounded-3xl border-2 border-white/90 shadow-md">
-        <CardContent class="p-4 sm:p-6">
-            <div class="mb-6 flex gap-4">
-                <img
-                    v-if="gift.image_url"
-                    :src="gift.image_url"
-                    alt=""
-                    class="h-20 w-20 shrink-0 rounded-2xl object-cover ring-2 ring-white"
-                />
-                <div>
-                    <h1 class="font-display text-2xl font-bold">
-                        {{ gift.title }}
-                    </h1>
-                    <p class="text-sm text-muted-foreground">
-                        Richtprijs: {{ formatEuro(gift.price) }}
-                    </p>
-                    <p
-                        v-if="
-                            gift.allows_partial_contributions &&
-                            gift.remaining < gift.price
-                        "
-                        class="text-sm text-muted-foreground"
-                    >
-                        Nog {{ formatEuro(gift.remaining) }} nodig
-                    </p>
-                </div>
-            </div>
+        <div
+            class="relative flex h-60 items-center justify-center rounded-[28px] bg-sky chunky-lg sm:h-72"
+        >
+            <span
+                class="absolute top-4 left-4 size-5.5 rounded-full bg-sun inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute right-6 bottom-7 size-3.5 rounded-full bg-tangerine inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-10 right-12 size-2.5 rounded-full bg-white inked"
+                aria-hidden="true"
+            ></span>
+
+            <img
+                v-if="gift.image_url"
+                :src="gift.image_url"
+                alt=""
+                class="h-[78%] max-w-[78%] rounded-3xl bg-white object-cover inked"
+            />
+            <Gift
+                v-else
+                class="size-36"
+                :stroke-width="1.4"
+                aria-hidden="true"
+            />
+
+            <span
+                class="absolute -bottom-4 left-5 rounded-full px-3.5 py-1 font-display text-[15px] font-semibold inked"
+                :class="gift.is_available ? 'bg-sun' : 'bg-ink text-cream'"
+            >
+                {{
+                    !gift.is_available
+                        ? 'Al geregeld'
+                        : gift.pledged > 0
+                          ? 'Er wordt al samen gegeven'
+                          : 'Nog helemaal vrij'
+                }}
+            </span>
+        </div>
+
+        <div class="mt-3 flex flex-col gap-1.5">
+            <h1
+                class="font-display text-[2rem] leading-[1.05] font-bold tracking-tight break-words"
+            >
+                {{ gift.title }}
+            </h1>
+            <p class="text-lg font-extrabold">{{ formatEuro(gift.price) }}</p>
+            <p
+                v-if="gift.description"
+                class="leading-snug font-semibold whitespace-pre-line"
+            >
+                {{ gift.description }}
+            </p>
+            <a
+                v-if="gift.shop_url"
+                :href="gift.shop_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 self-start text-sm font-extrabold underline decoration-2 underline-offset-4"
+            >
+                Bekijk in de webshop
+                <ExternalLink class="size-3.5" />
+            </a>
+        </div>
+
+        <div
+            v-if="!gift.is_available"
+            class="rounded-3xl border-dashed bg-white p-5 text-center font-bold inked"
+        >
+            Dit cadeau is niet meer beschikbaar.
+            <Link
+                :href="GiftListController.view({ giftList: giftList.slug })"
+                class="mt-2 block underline decoration-2 underline-offset-4"
+            >
+                Kies een ander cadeautje
+            </Link>
+        </div>
+
+        <form v-else class="flex flex-col gap-5" @submit.prevent="submit">
+            <InputError :message="giftError" />
 
             <div
-                v-if="!gift.is_available"
-                class="rounded-md bg-muted p-4 text-sm text-muted-foreground"
+                v-if="!isPurchase"
+                class="flex flex-col gap-3.5 rounded-3xl bg-white p-4.5 chunky"
             >
-                Dit cadeau is niet meer beschikbaar.
-            </div>
-
-            <form v-else class="flex flex-col gap-5" @submit.prevent="submit">
-                <div v-if="gift.allows_purchase" class="grid grid-cols-2 gap-2">
-                    <button
-                        type="button"
-                        class="rounded-2xl border-2 p-3 text-sm font-bold transition-colors"
-                        :class="
-                            !isPurchase
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'hover:bg-accent/50'
-                        "
-                        @click="type = 'contribution'"
-                    >
-                        🤝 Ik draag bij
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-2xl border-2 p-3 text-sm font-bold transition-colors"
-                        :class="
-                            isPurchase
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'hover:bg-accent/50'
-                        "
-                        @click="type = 'purchase'"
-                    >
-                        🛍️ Ik koop dit zelf
-                    </button>
+                <div class="flex items-baseline justify-between gap-3">
+                    <span class="font-display text-xl font-semibold">
+                        {{
+                            gift.allows_partial_contributions
+                                ? 'Samen geven'
+                                : 'Bijdragen'
+                        }}
+                    </span>
+                    <span class="text-[15px] font-extrabold">
+                        {{ formatEuro(gift.pledged) }} /
+                        {{ formatEuro(gift.price) }}
+                    </span>
                 </div>
 
-                <InputError :message="giftError" />
+                <div
+                    class="h-4.5 overflow-hidden rounded-full bg-cream inked"
+                    role="progressbar"
+                    :aria-valuenow="progress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-label="Hoeveel er al in de pot zit"
+                >
+                    <div
+                        class="h-full bg-tangerine"
+                        :class="
+                            progress > 0 && progress < 100
+                                ? 'border-r-[2.5px] border-ink'
+                                : ''
+                        "
+                        :style="{ width: `${progress}%` }"
+                    />
+                </div>
 
-                <p v-if="isPurchase" class="text-sm text-muted-foreground">
-                    Het cadeau wordt voor jou gereserveerd en verdwijnt uit de
-                    beschikbare items. Je koopt en geeft het zelf, dus je hoeft
-                    niets over te schrijven.
-                </p>
+                <div
+                    v-if="gift.contributor_count > 0"
+                    class="flex items-center gap-2.5"
+                >
+                    <div class="flex" aria-hidden="true">
+                        <span
+                            v-for="(color, index) in [
+                                'bg-sun',
+                                'bg-mint',
+                                'bg-blush',
+                            ].slice(0, Math.min(3, gift.contributor_count))"
+                            :key="color"
+                            class="size-7.5 rounded-full inked"
+                            :class="[color, index > 0 ? '-ml-2' : '']"
+                        ></span>
+                    </div>
+                    <span class="text-sm font-bold">
+                        {{
+                            gift.contributor_count === 1
+                                ? 'Er legde al iemand in'
+                                : `${gift.contributor_count} mensen legden al samen`
+                        }}
+                    </span>
+                </div>
 
-                <div v-if="!isPurchase" class="grid gap-2">
-                    <Label for="amount">Bedrag (euro)</Label>
+                <template v-if="gift.allows_partial_contributions">
+                    <Label
+                        for="amount"
+                        class="mt-0.5 text-[13px] tracking-[0.08em] uppercase"
+                    >
+                        Hoeveel leg jij in?
+                    </Label>
 
                     <div
                         v-if="quickAmounts.length > 0"
-                        class="flex flex-wrap gap-2"
+                        class="grid grid-cols-2 gap-2 sm:grid-cols-4"
                     >
                         <button
                             v-for="quickAmount in quickAmounts"
                             :key="quickAmount"
                             type="button"
-                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
+                            class="h-12 rounded-[14px] font-display text-[17px] font-semibold transition-colors inked"
                             :class="
-                                selectedAmountCents === quickAmount
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
+                                amountButtonClass(
+                                    selectedAmountCents === quickAmount,
+                                )
                             "
+                            :aria-pressed="selectedAmountCents === quickAmount"
                             @click="selectAmount(quickAmount)"
                         >
                             {{ formatEuro(quickAmount) }}
                         </button>
                         <button
                             type="button"
-                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
+                            class="col-span-2 h-12 rounded-[14px] font-display text-[17px] font-semibold transition-colors inked sm:col-span-4"
                             :class="
+                                amountButtonClass(
+                                    selectedAmountCents === gift.remaining,
+                                )
+                            "
+                            :aria-pressed="
                                 selectedAmountCents === gift.remaining
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
                             "
                             @click="selectAmount(gift.remaining)"
                         >
@@ -205,40 +313,39 @@ function submit() {
                         min="1"
                         :max="gift.remaining / 100"
                         inputmode="decimal"
-                        :disabled="!gift.allows_partial_contributions"
                         required
                         placeholder="Of kies zelf een bedrag"
                     />
                     <p
-                        v-if="!gift.allows_partial_contributions"
-                        class="text-sm text-muted-foreground"
-                    >
-                        Voor dit cadeau ligt het bedrag vast.
-                    </p>
-                    <p
-                        v-else-if="gift.remaining < gift.price"
-                        class="text-sm text-muted-foreground"
+                        v-if="gift.remaining < gift.price"
+                        class="text-sm font-semibold text-bark"
                     >
                         Er is nog {{ formatEuro(gift.remaining) }} nodig — meer
                         dan dat kan je niet geven.
                     </p>
-                    <InputError :message="form.errors.amount" />
-                </div>
-
-                <p
-                    v-if="user"
-                    class="rounded-md bg-muted p-3 text-sm text-muted-foreground"
-                >
-                    Je {{ isPurchase ? 'reserveert' : 'draagt bij' }} als
-                    <span class="font-medium text-foreground">{{
-                        user.name
-                    }}</span>
-                    ({{ user.email }}). De bevestiging{{
-                        isPurchase ? '' : ' en betaalinstructies'
-                    }}
-                    sturen we naar dat adres.
+                </template>
+                <p v-else class="text-sm font-semibold text-bark">
+                    Voor dit cadeau ligt het bedrag vast op
+                    {{ formatEuro(gift.price) }}.
                 </p>
+                <InputError :message="form.errors.amount" />
+            </div>
 
+            <div
+                v-else
+                class="flex flex-col gap-2 rounded-3xl bg-white p-4.5 chunky"
+            >
+                <span class="font-display text-xl font-semibold">
+                    Ik koop hem zelf
+                </span>
+                <p class="leading-snug font-semibold">
+                    Het cadeau wordt voor jou gereserveerd en verdwijnt uit de
+                    beschikbare items. Je koopt en geeft het zelf, dus je hoeft
+                    niets over te schrijven.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-4 rounded-3xl bg-white p-4.5 chunky">
                 <div class="grid gap-2">
                     <Label for="together-with"
                         >Ik geef samen met… (optioneel)</Label
@@ -248,7 +355,7 @@ function submit() {
                         v-model="form.together_with"
                         placeholder="Bijvoorbeeld: Marcel, of oma en opa"
                     />
-                    <p class="text-sm text-muted-foreground">
+                    <p class="text-sm font-semibold text-bark">
                         Zo staan jullie er allebei bij, ook al doet één iemand
                         de {{ isPurchase ? 'reservatie' : 'overschrijving' }}.
                     </p>
@@ -256,32 +363,49 @@ function submit() {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="message"
-                        >Persoonlijk woordje aan ons (optioneel)</Label
-                    >
+                    <Label for="message">Een lief woordje erbij?</Label>
                     <textarea
                         id="message"
                         v-model="form.message"
                         rows="3"
                         maxlength="1000"
-                        class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-                        placeholder="Bijvoorbeeld een gelukwens — enkel wij zien dit."
+                        class="w-full resize-none bg-cream px-3 py-2.5 text-[15px] placeholder:text-bark/70"
+                        placeholder="Bijvoorbeeld een gelukwens — enkel de ouders zien dit."
                     ></textarea>
                     <InputError :message="form.errors.message" />
                 </div>
+            </div>
 
-                <Button
+            <p v-if="user" class="px-1 text-sm font-semibold text-bark">
+                Je {{ isPurchase ? 'reserveert' : 'draagt bij' }} als
+                <span class="font-extrabold text-ink">{{ user.name }}</span>
+                ({{ user.email }}). De bevestiging{{
+                    isPurchase ? '' : ' en betaalinstructies'
+                }}
+                sturen we naar dat adres.
+            </p>
+
+            <div class="flex flex-col gap-1">
+                <button
                     type="submit"
                     :disabled="form.processing"
-                    class="w-full rounded-full font-bold"
+                    class="flex h-15 pressable items-center justify-center rounded-[20px] bg-tangerine px-4 font-display text-[19px] font-semibold chunky disabled:opacity-60"
+                >
+                    {{ submitLabel }}
+                </button>
+                <button
+                    v-if="gift.allows_purchase"
+                    type="button"
+                    class="py-2.5 text-center text-[15px] font-extrabold underline-offset-4 hover:underline"
+                    @click="type = isPurchase ? 'contribution' : 'purchase'"
                 >
                     {{
                         isPurchase
-                            ? 'Reserveer dit cadeau'
-                            : 'Bevestig mijn bijdrage'
+                            ? 'Of: toch liever samen geven'
+                            : 'Of: ik koop hem helemaal zelf'
                     }}
-                </Button>
-            </form>
-        </CardContent>
-    </Card>
+                </button>
+            </div>
+        </form>
+    </div>
 </template>

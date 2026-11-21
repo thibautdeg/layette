@@ -110,7 +110,7 @@ function cancelContribution(contribution: ContributionInfo) {
 
     <div
         v-if="contributions.length === 0"
-        class="rounded-3xl border-2 border-dashed bg-card/70 p-6 text-center text-sm text-muted-foreground"
+        class="rounded-3xl border-dashed bg-white p-6 text-center font-semibold inked"
     >
         <p>Je hebt nog geen bijdragen gedaan.</p>
         <Button as-child class="mt-4 rounded-full font-bold">
@@ -124,18 +124,21 @@ function cancelContribution(contribution: ContributionInfo) {
         <Card
             v-for="contribution in contributions"
             :key="contribution.id"
-            class="rounded-3xl border-2 border-white/90 shadow-sm"
+            class="bg-white"
         >
             <CardHeader class="pb-2">
                 <div class="flex items-start justify-between gap-2">
-                    <CardTitle class="text-base">{{
+                    <CardTitle class="font-display text-lg font-semibold">{{
                         contribution.gift.title
                     }}</CardTitle>
                     <Badge
-                        :variant="
-                            contribution.status === 'confirmed'
-                                ? 'default'
-                                : 'secondary'
+                        class="shrink-0"
+                        :class="
+                            {
+                                confirmed: 'bg-lime',
+                                pending: 'bg-sun',
+                                cancelled: 'bg-sand',
+                            }[contribution.status] ?? 'bg-white'
                         "
                     >
                         {{ contribution.status_label }}
@@ -168,7 +171,7 @@ function cancelContribution(contribution: ContributionInfo) {
 
                 <p
                     v-if="contribution.message"
-                    class="rounded-md bg-muted p-2 italic"
+                    class="rounded-2xl bg-cream p-3 font-semibold italic"
                 >
                     "{{ contribution.message }}"
                 </p>
@@ -178,9 +181,11 @@ function cancelContribution(contribution: ContributionInfo) {
                         contribution.status === 'pending' &&
                         contribution.type === 'contribution'
                     "
-                    class="rounded-md border p-3"
+                    class="rounded-2xl bg-cream p-3 inked"
                 >
-                    <p class="mb-1 font-medium">Nog over te schrijven</p>
+                    <p class="mb-1 font-display text-base font-semibold">
+                        Nog over te schrijven
+                    </p>
 
                     <PaymentQr
                         v-if="contribution.qr_svg"
@@ -237,7 +242,9 @@ function cancelContribution(contribution: ContributionInfo) {
                                 >Aanpassen</Button
                             >
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent
+                            class="public-theme rounded-3xl bg-white font-baby"
+                        >
                             <DialogHeader>
                                 <DialogTitle>Bijdrage aanpassen</DialogTitle>
                                 <DialogDescription>
@@ -271,7 +278,7 @@ function cancelContribution(contribution: ContributionInfo) {
                                         v-model="editForm.message"
                                         rows="3"
                                         maxlength="1000"
-                                        class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                                        class="w-full resize-none bg-cream px-3 py-2.5 text-[15px]"
                                     ></textarea>
                                     <InputError
                                         :message="editForm.errors.message"

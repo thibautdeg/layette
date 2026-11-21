@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import {
-    Blocks,
-    CircleCheck,
-    ExternalLink,
-    HandCoins,
-    Milk,
-    Share2,
-    ShoppingBag,
-} from '@lucide/vue';
+import { Gift, Share2 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import FreeContributionController from '@/actions/App/Http/Controllers/FreeContributionController';
 import GiftContributionController from '@/actions/App/Http/Controllers/GiftContributionController';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { formatEuro } from '@/lib/money';
+import { percentage, tileColor } from '@/lib/playful';
 
 defineOptions({
     layout: {
@@ -56,11 +46,7 @@ const props = defineProps<{
 }>();
 
 function progressPercentage(gift: GiftInfo): number {
-    if (gift.price === 0) {
-        return 0;
-    }
-
-    return Math.min(100, Math.round((gift.pledged / gift.price) * 100));
+    return percentage(gift.pledged, gift.price);
 }
 
 async function share() {
@@ -139,6 +125,72 @@ const chosenGifts = computed(() =>
     props.gifts.filter((gift) => !gift.is_available),
 );
 
+type Filter = 'alles' | 'vrij' | 'samen' | 'geregeld';
+
+const filter = ref<Filter>('alles');
+
+const filters = computed<{ id: Filter; label: string; count: number }[]>(() => [
+    { id: 'alles', label: 'Alles', count: props.gifts.length },
+    {
+        id: 'vrij',
+        label: 'Nog vrij',
+        count: availableGifts.value.filter((gift) => gift.pledged === 0).length,
+    },
+    {
+        id: 'samen',
+        label: 'Samen geven',
+        count: availableGifts.value.filter((gift) => gift.pledged > 0).length,
+    },
+    {
+        id: 'geregeld',
+        label: 'Al geregeld',
+        count: chosenGifts.value.length,
+    },
+]);
+
+const visibleGifts = computed(() => {
+    switch (filter.value) {
+        case 'vrij':
+            return availableGifts.value.filter((gift) => gift.pledged === 0);
+        case 'samen':
+            return availableGifts.value.filter((gift) => gift.pledged > 0);
+        case 'geregeld':
+            return chosenGifts.value;
+        default:
+            return [...availableGifts.value, ...chosenGifts.value];
+    }
+});
+
+const listProgress = computed(() =>
+    percentage(chosenGifts.value.length, props.gifts.length),
+);
+
+function tileFor(gift: GiftInfo): string {
+    return tileColor(props.gifts.findIndex((item) => item.id === gift.id));
+}
+
+function statusPill(gift: GiftInfo): { label: string; class: string } {
+    if (props.giftList.is_closed) {
+        return { label: 'Afgesloten', class: 'bg-ink text-cream' };
+    }
+
+    if (!gift.is_available) {
+        return { label: gift.status_label, class: 'bg-ink text-cream' };
+    }
+
+    if (gift.pledged > 0) {
+        return {
+            label: `Samen geven · ${progressPercentage(gift)}%`,
+            class: 'bg-cream',
+        };
+    }
+
+    return {
+        label: gift.allows_purchase ? 'Nog vrij' : 'Samen geven',
+        class: 'bg-mint',
+    };
+}
+
 const giftSectionIntro = computed(() => {
     if (props.giftList.is_closed) {
         return 'De lijst is afgesloten. Dankjewel voor alle liefde!';
@@ -157,96 +209,130 @@ const giftSectionIntro = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-10">
+    <div class="flex flex-col gap-6">
         <Head :title="giftList.title" />
 
-        <section class="flex flex-col items-center text-center">
-            <img
-                v-if="giftList.photo_url"
-                :src="giftList.photo_url"
-                alt=""
-                class="mb-4 size-28 rounded-full object-cover shadow-lg ring-4 ring-white"
-            />
-            <div
-                v-else
-                class="mb-4 flex size-20 items-center justify-center rounded-full bg-white text-primary shadow-md"
-                aria-hidden="true"
-            >
-                <Milk class="size-9" />
-            </div>
-
-            <h1
-                class="font-display text-4xl leading-tight font-bold tracking-tight sm:text-5xl"
-            >
-                {{ giftList.baby_name ?? giftList.title }}
-            </h1>
-            <p
-                v-if="giftList.baby_name"
-                class="mt-1 text-base text-muted-foreground"
-            >
-                {{ giftList.title }}
-            </p>
-
+        <section
+            class="relative mt-3 flex flex-col gap-4 rounded-[28px] bg-cream p-5 chunky-lg sm:p-7"
+        >
             <span
                 v-if="giftList.baby_gender"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground"
+                class="absolute -top-4 right-4 rounded-full bg-sky px-3.5 py-1 font-display text-[15px] font-semibold inked"
             >
                 {{ giftList.baby_gender.emoji }}
                 {{ giftList.baby_gender.label }}
             </span>
 
+            <div class="flex items-center gap-4">
+                <img
+                    v-if="giftList.photo_url"
+                    :src="giftList.photo_url"
+                    alt=""
+                    class="size-20 shrink-0 rounded-full object-cover inked sm:size-24"
+                />
+                <div class="flex min-w-0 flex-col gap-1">
+                    <span
+                        class="text-xs font-extrabold tracking-[0.1em] uppercase"
+                    >
+                        {{
+                            giftList.baby_name
+                                ? 'De babylijst van'
+                                : 'Welkom op'
+                        }}
+                    </span>
+                    <h1
+                        class="font-display text-5xl leading-none font-bold break-words sm:text-6xl"
+                    >
+                        {{ giftList.baby_name ?? giftList.title }}
+                    </h1>
+                    <span
+                        v-if="giftList.baby_name"
+                        class="font-display text-lg font-semibold text-bark"
+                    >
+                        {{ giftList.title }}
+                    </span>
+                </div>
+            </div>
+
             <p
                 v-if="giftList.intro"
-                class="mt-4 max-w-xl leading-6 whitespace-pre-line text-muted-foreground"
+                class="leading-6 font-semibold whitespace-pre-line"
             >
                 {{ giftList.intro }}
             </p>
 
-            <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
-                <Button
-                    v-if="!giftList.is_closed"
-                    as-child
-                    variant="outline"
-                    class="rounded-full bg-card font-bold"
+            <div v-if="gifts.length > 0" class="flex flex-col gap-1.5">
+                <div class="flex justify-between gap-3 text-sm font-extrabold">
+                    <span>
+                        {{ chosenGifts.length }} van {{ gifts.length }}
+                        cadeautjes geregeld
+                    </span>
+                    <span>{{ listProgress }}%</span>
+                </div>
+                <div
+                    class="h-4 overflow-hidden rounded-full bg-white inked"
+                    role="progressbar"
+                    :aria-valuenow="listProgress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-label="Hoeveel cadeautjes al geregeld zijn"
                 >
-                    <Link
-                        :href="
-                            FreeContributionController.create({
-                                giftList: giftList.slug,
-                            })
+                    <div
+                        class="h-full bg-tangerine"
+                        :class="
+                            listProgress > 0 && listProgress < 100
+                                ? 'border-r-[2.5px] border-ink'
+                                : ''
                         "
-                    >
-                        <HandCoins class="size-4" />
-                        Vrij bedrag geven
-                    </Link>
-                </Button>
-                <Button
-                    variant="ghost"
-                    class="rounded-full text-muted-foreground"
-                    @click="share"
-                >
-                    <Share2 class="size-4" />
-                    Lijst delen
-                </Button>
+                        :style="{ width: `${listProgress}%` }"
+                    />
+                </div>
             </div>
+
+            <button
+                type="button"
+                class="inline-flex h-11 pressable items-center justify-center gap-2 self-start rounded-2xl bg-white px-4 text-sm font-extrabold chunky-sm"
+                @click="share"
+            >
+                <Share2 class="size-4" />
+                Deel de lijst
+            </button>
         </section>
 
-        <section id="cadeaus" class="scroll-mt-20">
+        <section id="cadeaus" class="flex scroll-mt-20 flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <h2 class="font-display text-2xl font-bold">Cadeautjes</h2>
+                <p class="text-sm font-semibold text-bark">
+                    {{ giftSectionIntro }}
+                </p>
+            </div>
+
             <div
-                class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+                v-if="gifts.length > 0"
+                class="flex flex-wrap items-center gap-2 pr-1 pb-1"
             >
-                <div>
-                    <h2 class="font-display text-2xl font-bold">Cadeaus</h2>
-                    <p class="mt-1 text-sm text-muted-foreground">
-                        {{ giftSectionIntro }}
-                    </p>
-                </div>
+                <button
+                    v-for="option in filters"
+                    :key="option.id"
+                    type="button"
+                    class="h-11 pressable rounded-full px-4 text-sm font-extrabold chunky-sm"
+                    :class="
+                        filter === option.id
+                            ? 'bg-ink text-cream'
+                            : 'bg-white text-ink'
+                    "
+                    :aria-pressed="filter === option.id"
+                    @click="filter = option.id"
+                >
+                    {{ option.label }}
+                    <span class="opacity-70">{{ option.count }}</span>
+                </button>
 
                 <select
-                    v-if="availableGifts.length > 5"
+                    v-if="availableGifts.length > 5 && filter !== 'geregeld'"
                     v-model="sortBy"
                     aria-label="Sorteren"
-                    class="h-9 rounded-full border border-input bg-card px-3 text-sm text-muted-foreground focus-visible:border-ring focus-visible:outline-none"
+                    class="h-11 rounded-full px-3 text-sm sm:ml-auto"
                 >
                     <option value="standaard">Onze volgorde</option>
                     <option value="prijs-op">Prijs: laag naar hoog</option>
@@ -254,171 +340,83 @@ const giftSectionIntro = computed(() => {
                 </select>
             </div>
 
-            <div v-if="availableGifts.length > 0" class="flex flex-col gap-3">
-                <Card
-                    v-for="gift in availableGifts"
-                    :key="gift.id"
-                    class="overflow-hidden rounded-3xl border-2 border-white/90 py-0 shadow-sm"
-                >
-                    <CardContent
-                        class="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[6rem_minmax(0,1fr)]"
+            <p
+                v-if="gifts.length > 0 && visibleGifts.length === 0"
+                class="rounded-3xl border-dashed bg-white p-5 text-center text-sm font-bold inked"
+            >
+                Hier staat (nog) niets.
+            </p>
+
+            <div
+                v-if="visibleGifts.length > 0"
+                class="grid grid-cols-2 gap-3.5 sm:grid-cols-3"
+            >
+                <template v-for="gift in visibleGifts" :key="gift.id">
+                    <component
+                        :is="gift.is_available ? Link : 'div'"
+                        :href="
+                            gift.is_available
+                                ? GiftContributionController.create({
+                                      giftList: giftList.slug,
+                                      gift: gift.id,
+                                  })
+                                : undefined
+                        "
+                        class="flex min-w-0 flex-col gap-2 rounded-[22px] bg-white p-2.5 text-ink"
+                        :class="
+                            gift.is_available
+                                ? 'pressable chunky'
+                                : 'border-dashed opacity-75 inked'
+                        "
                     >
-                        <img
-                            v-if="gift.image_url"
-                            :src="gift.image_url"
-                            alt=""
-                            class="aspect-square w-full rounded-2xl object-cover"
-                        />
                         <div
-                            v-else
-                            class="flex aspect-square w-full items-center justify-center rounded-2xl bg-muted text-muted-foreground"
-                            aria-hidden="true"
+                            class="flex h-28 items-center justify-center overflow-hidden rounded-2xl sm:h-32"
+                            :class="
+                                gift.is_available ? tileFor(gift) : 'bg-sand'
+                            "
                         >
-                            <Blocks class="size-7" />
-                        </div>
-
-                        <div class="flex min-w-0 flex-col gap-3">
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <h3
-                                        class="text-base leading-tight font-extrabold sm:text-lg"
-                                    >
-                                        {{ gift.title }}
-                                    </h3>
-                                    <p
-                                        v-if="gift.description"
-                                        class="mt-1 text-sm leading-5 text-muted-foreground"
-                                    >
-                                        {{ gift.description }}
-                                    </p>
-                                </div>
-                                <p
-                                    class="shrink-0 text-base font-extrabold sm:text-lg"
-                                >
-                                    {{ formatEuro(gift.price) }}
-                                </p>
-                            </div>
-
-                            <div v-if="gift.pledged > 0">
-                                <div
-                                    class="mb-1.5 flex items-center justify-between gap-3 text-xs text-muted-foreground"
-                                >
-                                    <span class="font-semibold">
-                                        {{ formatEuro(gift.pledged) }}
-                                        toegezegd
-                                    </span>
-                                    <span>
-                                        Nog {{ formatEuro(gift.remaining) }}
-                                    </span>
-                                </div>
-                                <div
-                                    class="h-2 w-full overflow-hidden rounded-full bg-muted"
-                                    role="progressbar"
-                                    :aria-valuenow="progressPercentage(gift)"
-                                    aria-valuemin="0"
-                                    aria-valuemax="100"
-                                >
-                                    <div
-                                        class="h-full rounded-full bg-primary"
-                                        :style="{
-                                            width: `${progressPercentage(gift)}%`,
-                                        }"
-                                    />
-                                </div>
-                            </div>
-
-                            <div
-                                class="mt-auto flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between"
-                            >
-                                <a
-                                    v-if="gift.shop_url"
-                                    :href="gift.shop_url"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-                                >
-                                    Bekijk in de webshop
-                                    <ExternalLink class="size-3.5" />
-                                </a>
-                                <span v-else class="hidden sm:block"></span>
-
-                                <Button
-                                    as-child
-                                    class="w-full rounded-full font-bold sm:w-auto sm:px-6"
-                                >
-                                    <Link
-                                        :href="
-                                            GiftContributionController.create({
-                                                giftList: giftList.slug,
-                                                gift: gift.id,
-                                            })
-                                        "
-                                    >
-                                        <ShoppingBag
-                                            v-if="gift.allows_purchase"
-                                            class="size-4"
-                                        />
-                                        <HandCoins v-else class="size-4" />
-                                        {{
-                                            gift.allows_purchase
-                                                ? 'Kopen of bijdragen'
-                                                : 'Bijdragen'
-                                        }}
-                                    </Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div v-if="chosenGifts.length > 0" class="mt-8">
-                <h3
-                    v-if="!giftList.is_closed"
-                    class="mb-3 text-sm font-bold text-muted-foreground"
-                >
-                    Al gekozen ({{ chosenGifts.length }})
-                </h3>
-                <ul
-                    class="divide-y overflow-hidden rounded-3xl border-2 border-white/90 bg-card/70"
-                >
-                    <li
-                        v-for="gift in chosenGifts"
-                        :key="gift.id"
-                        class="flex items-center gap-3 px-4 py-3 text-sm"
-                    >
-                        <img
-                            v-if="gift.image_url"
-                            :src="gift.image_url"
-                            alt=""
-                            class="size-10 shrink-0 rounded-xl object-cover opacity-70"
-                        />
-                        <div
-                            v-else
-                            class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground"
-                            aria-hidden="true"
-                        >
-                            <Blocks class="size-4" />
+                            <img
+                                v-if="gift.image_url"
+                                :src="gift.image_url"
+                                alt=""
+                                class="size-full object-cover"
+                                :class="gift.is_available ? '' : 'grayscale-50'"
+                            />
+                            <Gift
+                                v-else
+                                class="size-14"
+                                :stroke-width="1.6"
+                                aria-hidden="true"
+                            />
                         </div>
                         <span
-                            class="min-w-0 flex-1 truncate font-semibold text-muted-foreground"
+                            class="font-display text-[17px] leading-tight font-semibold break-words"
                         >
                             {{ gift.title }}
                         </span>
-                        <Badge
-                            variant="secondary"
-                            class="shrink-0 rounded-full"
+                        <span class="text-sm font-bold">
+                            {{ formatEuro(gift.price) }}
+                        </span>
+                        <span
+                            class="mt-auto max-w-full self-start rounded-full border-2 border-ink px-2.5 py-1 text-xs leading-tight font-extrabold"
+                            :class="statusPill(gift).class"
                         >
-                            <CircleCheck class="size-3.5" />
-                            {{
-                                giftList.is_closed
-                                    ? 'Afgesloten'
-                                    : gift.status_label
-                            }}
-                        </Badge>
-                    </li>
-                </ul>
+                            {{ statusPill(gift).label }}
+                        </span>
+                    </component>
+                </template>
             </div>
         </section>
+
+        <Link
+            v-if="!giftList.is_closed"
+            :href="
+                FreeContributionController.create({ giftList: giftList.slug })
+            "
+            class="flex h-15 pressable items-center justify-center gap-2.5 rounded-[20px] bg-sky px-4 text-center font-display text-lg font-semibold chunky"
+        >
+            <Gift class="size-5.5" :stroke-width="2.4" />
+            Verras ons: zelf een bedrag kiezen
+        </Link>
     </div>
 </template>

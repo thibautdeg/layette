@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ArrowLeft } from '@lucide/vue';
+import { ArrowLeft, PiggyBank } from '@lucide/vue';
 import { computed } from 'vue';
 import FreeContributionController from '@/actions/App/Http/Controllers/FreeContributionController';
 import GiftListController from '@/actions/App/Http/Controllers/GiftListController';
 import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { centsToEuroInput, euroInputToCents, formatEuro } from '@/lib/money';
@@ -54,78 +52,103 @@ function submit() {
 <template>
     <Head title="Vrije bijdrage" />
 
-    <Link
-        :href="GiftListController.view({ giftList: giftList.slug })"
-        class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold text-muted-foreground shadow-sm hover:text-foreground"
-    >
-        <ArrowLeft class="size-4" />
-        Terug naar de lijst
-    </Link>
+    <div class="flex flex-col gap-5">
+        <div class="flex items-center justify-between gap-3">
+            <Link
+                :href="GiftListController.view({ giftList: giftList.slug })"
+                aria-label="Terug naar de lijst"
+                class="flex size-11 shrink-0 pressable items-center justify-center rounded-[14px] bg-white chunky-sm"
+            >
+                <ArrowLeft class="size-5" :stroke-width="2.6" />
+            </Link>
+            <span class="font-display text-lg font-semibold"
+                >Vrije bijdrage</span
+            >
+            <span class="size-11 shrink-0" aria-hidden="true"></span>
+        </div>
 
-    <Card class="rounded-3xl border-2 border-white/90 shadow-md">
-        <CardContent class="p-4 sm:p-6">
-            <div class="mb-6 flex items-center gap-4">
-                <div
-                    class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-3xl shadow-sm"
-                    aria-hidden="true"
-                >
-                    💝
-                </div>
-                <div>
-                    <h1 class="font-display text-2xl font-bold">
-                        Vrije bijdrage
-                    </h1>
-                    <p class="text-sm text-muted-foreground">
-                        Niet aan één cadeau gebonden — gewoon iets voor de
-                        spaarpot van de kleine.
-                    </p>
-                </div>
-            </div>
+        <div
+            class="relative flex h-52 items-center justify-center rounded-[28px] bg-sun chunky-lg"
+        >
+            <span
+                class="absolute top-5 left-5 size-5 rounded-full bg-sky inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute right-7 bottom-7 size-3.5 rounded-full bg-blush inked"
+                aria-hidden="true"
+            ></span>
+            <span
+                class="absolute top-9 right-14 size-2.5 rotate-45 bg-cream inked"
+                aria-hidden="true"
+            ></span>
+            <PiggyBank class="size-32" :stroke-width="1.4" aria-hidden="true" />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+            <h1
+                class="font-display text-[2rem] leading-[1.05] font-bold tracking-tight"
+            >
+                Verras ons!
+            </h1>
+            <p class="leading-snug font-semibold">
+                Niet aan één cadeau gebonden — gewoon iets voor de spaarpot van
+                de kleine.
+            </p>
+        </div>
+
+        <div
+            v-if="giftList.is_closed"
+            class="rounded-3xl border-dashed bg-white p-5 text-center font-bold inked"
+        >
+            De lijst is afgesloten, er zijn geen nieuwe bijdragen meer mogelijk.
+        </div>
+
+        <form v-else class="flex flex-col gap-5" @submit.prevent="submit">
+            <InputError :message="giftError" />
 
             <div
-                v-if="giftList.is_closed"
-                class="rounded-md bg-muted p-4 text-sm text-muted-foreground"
+                class="flex flex-col gap-3.5 rounded-3xl bg-white p-4.5 chunky"
             >
-                De lijst is afgesloten, er zijn geen nieuwe bijdragen meer
-                mogelijk.
-            </div>
+                <Label
+                    for="amount"
+                    class="text-[13px] tracking-[0.08em] uppercase"
+                >
+                    Hoeveel geef jij?
+                </Label>
 
-            <form v-else class="flex flex-col gap-5" @submit.prevent="submit">
-                <InputError :message="giftError" />
-
-                <div class="grid gap-2">
-                    <Label for="amount">Bedrag (euro)</Label>
-
-                    <div class="flex flex-wrap gap-2">
-                        <button
-                            v-for="quickAmount in quickAmounts"
-                            :key="quickAmount"
-                            type="button"
-                            class="rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors"
-                            :class="
-                                selectedAmountCents === quickAmount
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border bg-white/80 shadow-sm hover:bg-accent/40'
-                            "
-                            @click="selectAmount(quickAmount)"
-                        >
-                            {{ formatEuro(quickAmount) }}
-                        </button>
-                    </div>
-
-                    <Input
-                        id="amount"
-                        v-model="form.amount"
-                        type="number"
-                        step="0.01"
-                        min="1"
-                        inputmode="decimal"
-                        required
-                        placeholder="Of kies zelf een bedrag"
-                    />
-                    <InputError :message="form.errors.amount" />
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <button
+                        v-for="quickAmount in quickAmounts"
+                        :key="quickAmount"
+                        type="button"
+                        class="h-12 rounded-[14px] font-display text-[17px] font-semibold transition-colors inked"
+                        :class="
+                            selectedAmountCents === quickAmount
+                                ? 'bg-ink text-cream'
+                                : 'bg-cream text-ink hover:bg-white'
+                        "
+                        :aria-pressed="selectedAmountCents === quickAmount"
+                        @click="selectAmount(quickAmount)"
+                    >
+                        {{ formatEuro(quickAmount) }}
+                    </button>
                 </div>
 
+                <Input
+                    id="amount"
+                    v-model="form.amount"
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    inputmode="decimal"
+                    required
+                    placeholder="Of kies zelf een bedrag"
+                />
+                <InputError :message="form.errors.amount" />
+            </div>
+
+            <div class="flex flex-col gap-4 rounded-3xl bg-white p-4.5 chunky">
                 <div class="grid gap-2">
                     <Label for="together-with"
                         >Ik geef samen met… (optioneel)</Label
@@ -139,40 +162,37 @@ function submit() {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="message"
-                        >Persoonlijk woordje aan ons (optioneel)</Label
-                    >
+                    <Label for="message">Een lief woordje erbij?</Label>
                     <textarea
                         id="message"
                         v-model="form.message"
                         rows="3"
                         maxlength="1000"
-                        class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-                        placeholder="Bijvoorbeeld een gelukwens — enkel wij zien dit."
+                        class="w-full resize-none bg-cream px-3 py-2.5 text-[15px] placeholder:text-bark/70"
+                        placeholder="Bijvoorbeeld een gelukwens — enkel de ouders zien dit."
                     ></textarea>
                     <InputError :message="form.errors.message" />
                 </div>
+            </div>
 
-                <p
-                    v-if="user"
-                    class="rounded-md bg-muted p-3 text-sm text-muted-foreground"
-                >
-                    Je geeft als
-                    <span class="font-medium text-foreground">{{
-                        user.name
-                    }}</span>
-                    ({{ user.email }}). De bevestiging en betaalinstructies
-                    sturen we naar dat adres.
-                </p>
+            <p v-if="user" class="px-1 text-sm font-semibold text-bark">
+                Je geeft als
+                <span class="font-extrabold text-ink">{{ user.name }}</span>
+                ({{ user.email }}). De bevestiging en betaalinstructies sturen
+                we naar dat adres.
+            </p>
 
-                <Button
-                    type="submit"
-                    :disabled="form.processing"
-                    class="w-full rounded-full font-bold"
-                >
-                    Bevestig mijn bijdrage
-                </Button>
-            </form>
-        </CardContent>
-    </Card>
+            <button
+                type="submit"
+                :disabled="form.processing"
+                class="flex h-15 pressable items-center justify-center rounded-[20px] bg-tangerine px-4 font-display text-[19px] font-semibold chunky disabled:opacity-60"
+            >
+                {{
+                    selectedAmountCents > 0
+                        ? `Geef ${formatEuro(selectedAmountCents)}`
+                        : 'Bevestig mijn bijdrage'
+                }}
+            </button>
+        </form>
+    </div>
 </template>
