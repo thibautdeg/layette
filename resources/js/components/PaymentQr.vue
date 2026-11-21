@@ -8,7 +8,7 @@ defineProps<{
     <div class="hidden flex-col items-center gap-3 sm:flex">
         <div
             v-html="qrSvg"
-            class="overflow-hidden rounded-2xl border bg-white [&>svg]:block [&>svg]:h-44 [&>svg]:w-44"
+            class="overflow-hidden rounded-2xl bg-white p-1 inked [&>svg]:block [&>svg]:h-44 [&>svg]:w-44"
         />
         <p class="text-center">
             <strong>Scan deze QR-code met je bankapp</strong>

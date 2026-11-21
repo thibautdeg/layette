@@ -9,7 +9,7 @@
 
 @theme inline {
     --font-sans:
-        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        Nunito, Instrument Sans, ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
@@ -19,9 +19,20 @@
         'Noto Color Emoji';
 
     --font-display:
-        'Baloo 2', Nunito, ui-sans-serif, system-ui, sans-serif,
+        Fredoka, Nunito, ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+
+    --color-ink: #4a3428;
+    --color-bark: #8b5a3c;
+    --color-cream: #fefff2;
+    --color-sand: #efead8;
+    --color-tangerine: #f0965b;
+    --color-sky: #56bcdd;
+    --color-lime: #94d769;
+    --color-mint: #d4efc0;
+    --color-sun: #f5c06a;
+    --color-blush: #f7bdb6;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -93,47 +104,47 @@
     body,
     html {
         --font-sans:
-            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            Nunito, 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
             'Noto Color Emoji';
     }
 }
 
 :root {
-    --background: hsl(38 100% 98%);
-    --foreground: hsl(25 30% 22%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(25 30% 22%);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(25 30% 22%);
-    --primary: hsl(13 72% 62%);
-    --primary-foreground: hsl(20 100% 98%);
-    --secondary: hsl(150 40% 90%);
-    --secondary-foreground: hsl(160 30% 24%);
-    --muted: hsl(36 60% 94%);
-    --muted-foreground: hsl(25 18% 44%);
-    --accent: hsl(200 65% 92%);
-    --accent-foreground: hsl(210 35% 26%);
-    --destructive: hsl(0 72% 55%);
+    --background: #fefff2;
+    --foreground: #4a3428;
+    --card: #ffffff;
+    --card-foreground: #4a3428;
+    --popover: #ffffff;
+    --popover-foreground: #4a3428;
+    --primary: #f0965b;
+    --primary-foreground: #4a3428;
+    --secondary: #d4efc0;
+    --secondary-foreground: #4a3428;
+    --muted: #efead8;
+    --muted-foreground: #7d5236;
+    --accent: #e3f4fa;
+    --accent-foreground: #4a3428;
+    --destructive: hsl(0 72% 50%);
     --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(32 40% 88%);
-    --input: hsl(32 35% 85%);
-    --ring: hsl(13 72% 62%);
-    --chart-1: hsl(340 70% 72%);
-    --chart-2: hsl(173 45% 50%);
-    --chart-3: hsl(200 55% 55%);
-    --chart-4: hsl(43 80% 66%);
-    --chart-5: hsl(27 87% 67%);
-    --radius: 0.75rem;
-    --sidebar-background: hsl(36 70% 96%);
-    --sidebar-foreground: hsl(25 25% 30%);
-    --sidebar-primary: hsl(13 72% 62%);
-    --sidebar-primary-foreground: hsl(20 100% 98%);
-    --sidebar-accent: hsl(35 55% 91%);
-    --sidebar-accent-foreground: hsl(25 30% 25%);
-    --sidebar-border: hsl(32 40% 88%);
-    --sidebar-ring: hsl(13 72% 62%);
-    --sidebar: hsl(36 70% 96%);
+    --border: hsl(22 30% 80%);
+    --input: hsl(22 30% 72%);
+    --ring: #4a3428;
+    --chart-1: #f0965b;
+    --chart-2: #56bcdd;
+    --chart-3: #94d769;
+    --chart-4: #f5c06a;
+    --chart-5: #f7bdb6;
+    --radius: 0.875rem;
+    --sidebar-background: #f8f6e6;
+    --sidebar-foreground: #4a3428;
+    --sidebar-primary: #f0965b;
+    --sidebar-primary-foreground: #4a3428;
+    --sidebar-accent: #efead8;
+    --sidebar-accent-foreground: #4a3428;
+    --sidebar-border: hsl(22 30% 84%);
+    --sidebar-ring: #4a3428;
+    --sidebar: #f8f6e6;
 }
 
 .dark {
@@ -143,8 +154,8 @@
     --card-foreground: hsl(35 40% 92%);
     --popover: hsl(26 18% 13%);
     --popover-foreground: hsl(35 40% 92%);
-    --primary: hsl(13 70% 66%);
-    --primary-foreground: hsl(20 60% 10%);
+    --primary: #f0965b;
+    --primary-foreground: #2a1c14;
     --secondary: hsl(160 20% 20%);
     --secondary-foreground: hsl(150 35% 85%);
     --muted: hsl(26 15% 17%);
@@ -155,7 +166,7 @@
     --destructive-foreground: hsl(0 0% 98%);
     --border: hsl(26 15% 20%);
     --input: hsl(26 15% 22%);
-    --ring: hsl(13 70% 66%);
+    --ring: #f0965b;
     --chart-1: hsl(340 60% 65%);
     --chart-2: hsl(173 40% 48%);
     --chart-3: hsl(200 50% 55%);
@@ -163,12 +174,12 @@
     --chart-5: hsl(27 80% 62%);
     --sidebar-background: hsl(26 20% 8%);
     --sidebar-foreground: hsl(35 35% 90%);
-    --sidebar-primary: hsl(13 70% 66%);
-    --sidebar-primary-foreground: hsl(20 60% 10%);
+    --sidebar-primary: #f0965b;
+    --sidebar-primary-foreground: #2a1c14;
     --sidebar-accent: hsl(26 15% 16%);
     --sidebar-accent-foreground: hsl(35 35% 90%);
     --sidebar-border: hsl(26 15% 18%);
-    --sidebar-ring: hsl(13 70% 66%);
+    --sidebar-ring: #f0965b;
     --sidebar: hsl(26 20% 8%);
 }
 
@@ -182,36 +193,166 @@
 }
 
 /*
-  Speels snoepjes-pastel thema voor de publieke geboortelijst-pagina's.
-  Deze variabelen staan op de layout-wrapper zelf en winnen daardoor
-  altijd van de .dark waarden op <html> — de publieke kant is bewust
-  light-only, de backoffice behoudt zijn eigen (dark mode) thema.
+  Speels "ludiek" thema: crème papier, bruine inktlijnen en harde,
+  verschoven schaduwen — alsof alles uit karton geknipt is.
 */
-.public-theme {
-    --background: hsl(46 100% 96%);
-    --foreground: hsl(259 25% 30%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(259 25% 30%);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(259 25% 30%);
-    --primary: hsl(348 78% 62%);
-    --primary-foreground: hsl(345 100% 98%);
-    --secondary: hsl(158 55% 84%);
-    --secondary-foreground: hsl(163 45% 21%);
-    --muted: hsl(43 92% 92%);
-    --muted-foreground: hsl(259 14% 46%);
-    --accent: hsl(203 92% 87%);
-    --accent-foreground: hsl(211 55% 27%);
-    --destructive: hsl(0 72% 55%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(35 60% 84%);
-    --input: hsl(35 55% 80%);
-    --ring: hsl(348 78% 62%);
-    --chart-1: hsl(340 85% 74%);
-    --chart-2: hsl(172 55% 52%);
-    --chart-3: hsl(203 80% 62%);
-    --chart-4: hsl(44 95% 60%);
-    --chart-5: hsl(25 95% 65%);
-    --radius: 1.25rem;
+@utility chunky {
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
 }
 
+@utility chunky-sm {
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+@utility chunky-lg {
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+@utility inked {
+    border: 2.5px solid var(--color-ink);
+}
+
+@utility pressable {
+    transition:
+        transform 120ms ease,
+        box-shadow 120ms ease;
+
+    &:hover {
+        transform: translate(-1px, -1px);
+    }
+
+    &:active {
+        transform: translate(3px, 3px);
+        box-shadow: 0 0 0 var(--color-ink);
+    }
+}
+
+/*
+  De publieke kant (lijst, bijdragen, account, aanmelden) is bewust
+  light-only. Deze variabelen staan op de layout-wrapper en winnen
+  daardoor van de .dark waarden op <html>.
+*/
+.public-theme {
+    --background: #fefff2;
+    --foreground: #4a3428;
+    --card: #ffffff;
+    --card-foreground: #4a3428;
+    --popover: #ffffff;
+    --popover-foreground: #4a3428;
+    --primary: #f0965b;
+    --primary-foreground: #4a3428;
+    --secondary: #d4efc0;
+    --secondary-foreground: #4a3428;
+    --muted: #efead8;
+    --muted-foreground: #7d5236;
+    --accent: #56bcdd;
+    --accent-foreground: #4a3428;
+    --destructive: hsl(0 70% 48%);
+    --destructive-foreground: #ffffff;
+    --border: #4a3428;
+    --input: #4a3428;
+    --ring: #4a3428;
+    --radius: 1.25rem;
+
+    color-scheme: light;
+}
+
+/* shadcn-bouwstenen krijgen binnen het publieke thema de ludieke look. */
+.public-theme
+    [data-slot='button']:not([data-variant='ghost'], [data-variant='link']) {
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
+    font-weight: 800;
+    transition:
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        background-color 120ms ease;
+}
+
+.public-theme
+    [data-slot='button']:not(
+        [data-variant='ghost'],
+        [data-variant='link']
+    ):hover {
+    transform: translate(-1px, -1px);
+}
+
+.public-theme
+    [data-slot='button']:not(
+        [data-variant='ghost'],
+        [data-variant='link']
+    ):active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+}
+
+.public-theme [data-slot='button'][data-variant='default'] {
+    background: var(--color-tangerine);
+    color: var(--color-ink);
+}
+
+.public-theme [data-slot='button'][data-variant='outline'],
+.public-theme [data-slot='button'][data-variant='secondary'] {
+    background: #ffffff;
+    color: var(--color-ink);
+}
+
+.public-theme [data-slot='button'][data-variant='destructive'] {
+    color: #ffffff;
+}
+
+.public-theme [data-slot='input'],
+.public-theme textarea,
+.public-theme select {
+    border: 2.5px solid var(--color-ink);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.public-theme [data-slot='input'] {
+    min-height: 2.75rem;
+}
+
+.public-theme [data-slot='input']:focus-visible,
+.public-theme textarea:focus-visible,
+.public-theme select:focus-visible {
+    outline: 3px solid var(--color-sky);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.public-theme [data-slot='card'] {
+    border: 2.5px solid var(--color-ink);
+    border-radius: 24px;
+    box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+.public-theme [data-slot='label'] {
+    font-weight: 800;
+}
+
+.public-theme [data-slot='badge'] {
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.public-theme [data-slot='dropdown-menu-content'],
+.public-theme[data-slot='dropdown-menu-content'],
+.public-theme [data-slot='dialog-content'],
+.public-theme[data-slot='dialog-content'] {
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .public-theme * {
+        transition: none !important;
+    }
+}

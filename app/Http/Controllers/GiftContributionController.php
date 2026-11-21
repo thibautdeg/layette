@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CreateContributionAction;
+use App\Enums\ContributionType;
 use App\Enums\Role;
 use App\Http\Requests\StoreGiftContributionRequest;
 use App\Mail\ContributionReceivedMail;
@@ -37,7 +38,12 @@ class GiftContributionController extends Controller
                 'description' => $gift->description,
                 'price' => $gift->price,
                 'image_url' => $gift->image_path !== null ? Storage::disk(config('filesystems.uploads'))->url($gift->image_path) : null,
+                'shop_url' => $gift->shop_url,
+                'pledged' => min($gift->pledgedAmount(), $gift->price),
                 'remaining' => $gift->remainingAmount(),
+                'contributor_count' => $gift->activeContributions()
+                    ->where('type', ContributionType::Contribution)
+                    ->count(),
                 'allows_partial_contributions' => $gift->allows_partial_contributions,
                 'allows_purchase' => $gift->allows_purchase && ! $gift->hasActiveContributions(),
                 'is_available' => $gift->isAvailable() && ! $giftList->isClosed(),

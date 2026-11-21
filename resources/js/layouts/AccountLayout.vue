@@ -32,14 +32,14 @@ function handleLogout() {
 <template>
     <div>
         <div class="mb-6">
-            <h1 class="font-display text-3xl font-bold">Mijn account</h1>
-            <p class="mt-1 truncate text-sm text-muted-foreground">
+            <h1 class="font-display text-4xl font-bold">Mijn account</h1>
+            <p class="mt-1 truncate text-sm font-semibold text-bark">
                 {{ user?.name }} · {{ user?.email }}
             </p>
         </div>
 
         <nav
-            class="mb-6 flex gap-1 overflow-x-auto rounded-full border bg-card p-1 shadow-sm"
+            class="mb-6 flex gap-1 overflow-x-auto rounded-full bg-white p-1 chunky-sm"
             aria-label="Account"
         >
             <Link
@@ -49,8 +49,8 @@ function handleLogout() {
                 class="flex-1 rounded-full px-4 py-2 text-center text-sm font-bold whitespace-nowrap transition-colors"
                 :class="
                     isCurrentOrParentUrl(item.href)
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-ink text-cream'
+                        : 'text-ink hover:bg-cream'
                 "
             >
                 {{ item.title }}
@@ -59,7 +59,9 @@ function handleLogout() {
 
         <slot />
 
-        <div class="mt-10 flex justify-center border-t pt-6">
+        <div
+            class="mt-10 flex justify-center border-t-2 border-dashed border-ink/30 pt-6"
+        >
             <Button as-child variant="outline" class="rounded-full bg-card">
                 <Link :href="logout()" as="button" @click="handleLogout">
                     <LogOut class="size-4" />

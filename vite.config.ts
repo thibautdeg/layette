@@ -18,8 +18,8 @@ export default defineConfig({
                 bunny('Nunito', {
                     weights: [400, 600, 700, 800],
                 }),
-                bunny('Baloo 2', {
-                    weights: [500, 600, 700, 800],
+                bunny('Fredoka', {
+                    weights: [500, 600, 700],
                 }),
             ],
         }),

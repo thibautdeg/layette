@@ -10,39 +10,49 @@ defineProps<{
 
 <template>
     <div
-        class="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 font-baby md:p-10"
+        class="public-theme relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-background p-5 font-baby text-foreground md:p-10"
     >
-        <div class="pointer-events-none fixed inset-0 overflow-hidden">
-            <div
-                class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-            ></div>
-            <div
-                class="absolute -right-28 bottom-10 h-80 w-80 rounded-full bg-secondary/70 blur-3xl dark:bg-secondary/30"
-            ></div>
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+            <span
+                class="absolute top-[12%] left-[10%] size-5 rounded-full bg-sun inked"
+            ></span>
+            <span
+                class="absolute top-[20%] right-[12%] h-3 w-7 rotate-30 rounded-md bg-sky inked"
+            ></span>
+            <span
+                class="absolute bottom-[18%] left-[8%] h-3 w-6 -rotate-25 rounded-md bg-blush inked"
+            ></span>
+            <span
+                class="absolute right-[14%] bottom-[12%] size-4 rounded-full bg-mint inked"
+            ></span>
         </div>
         <div class="relative w-full max-w-sm">
-            <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-6">
                 <div class="flex flex-col items-center gap-4">
                     <Link
                         :href="home()"
-                        class="flex flex-col items-center gap-2 font-medium"
+                        class="font-display text-[2.5rem] leading-none font-bold tracking-tight"
                     >
-                        <div
-                            class="mb-1 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl"
-                            aria-hidden="true"
-                        >
-                            🍼
-                        </div>
-                        <span class="sr-only">{{ title }}</span>
+                        layette
+                        <span class="sr-only">— {{ title }}</span>
                     </Link>
-                    <div class="space-y-2 text-center">
-                        <h1 class="text-xl font-extrabold">{{ title }}</h1>
-                        <p class="text-center text-sm text-muted-foreground">
+                </div>
+                <div
+                    class="flex flex-col gap-6 rounded-[28px] bg-white p-6 chunky-lg"
+                >
+                    <div class="space-y-1.5 text-center">
+                        <h1 class="font-display text-2xl font-bold">
+                            {{ title }}
+                        </h1>
+                        <p
+                            v-if="description"
+                            class="text-sm font-semibold text-bark"
+                        >
                             {{ description }}
                         </p>
                     </div>
+                    <slot />
                 </div>
-                <slot />
             </div>
         </div>
     </div>

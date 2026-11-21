@@ -32,7 +32,7 @@ const loginUrl = props.intent
 <template>
     <Head title="Account aanmaken" />
 
-    <div class="mb-4 rounded-md bg-muted p-3 text-sm text-muted-foreground">
+    <div class="mb-4 rounded-2xl bg-cream p-3 text-sm font-semibold inked">
         <template v-if="intent === 'bijdragen'">
             Nog even dit, en dan kom je meteen terug bij het cadeau.
         </template>
